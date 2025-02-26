@@ -9,9 +9,10 @@
     <Canvas>
         <TabControl x:Name="tabControl" Height="1150" Width="420" HorizontalAlignment="Left" VerticalAlignment="Center">
             <TabItem Header="Data Loading">
-               <Canvas>
-
-               </Canvas>
+                <Canvas>
+                    <Button Canvas.Left="143" Canvas.Top="69"  FontSize="18" Click="OnLoadVideo" >Load Video</Button>
+                    <Button Canvas.Left="150" Canvas.Top="131"  FontSize="18" Click="OnLoadGpx">Load Gpx</Button>
+                </Canvas>
             </TabItem>
             <TabItem Header="Splitting Points">
                 <Canvas>
@@ -31,15 +32,15 @@
         </TabControl>
         <GroupBox x:Name="VideoControl" Height="580" Header="Video Control" Width="1150"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="0">
             <Canvas>
-               <Image x:Name="VideoImage" Height="530" Width="1140" HorizontalAlignment="Left" VerticalAlignment="Top" />
-               <Slider x:Name="VideoSlider" Height="20" Width="1140" Canvas.Left="0" Canvas.Bottom="0" Maximum="6" ValueChanged="OnVideoSliderChanged"/>
+                <Canvas x:Name="VideoImage" Height="530" Width="1140" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                <Slider x:Name="VideoSlider" Height="20" Width="1140" Canvas.Left="0" Canvas.Bottom="0" Maximum="100"/>
             </Canvas>
         </GroupBox>
 
         <GroupBox x:Name="GpxControl" Height="580" Header="Gpx Control" Width="1150"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="0" Canvas.Bottom="0">
-                <Canvas>
-                    <Image x:Name="GpxImage" Height="550" Width="1000" HorizontalAlignment="Left" VerticalAlignment="Top" MouseDown="OnGpxMouseDown" MouseUp="OnGpxMouseUp" MouseMove="OnGpxMouseMove" />
-                    <Button x:Name="ZoomIn" FontSize="36" Canvas.Right="50" Canvas.Top="100" Click="OnZoomIn" Width="50" Height="50">+</Button>
+            <Canvas>
+                <Image x:Name="GpxImage" Height="550" Width="1000" HorizontalAlignment="Left" VerticalAlignment="Top" MouseDown="OnGpxMouseDown" MouseUp="OnGpxMouseUp" MouseMove="OnGpxMouseMove" />
+                <Button x:Name="ZoomIn" FontSize="36" Canvas.Right="50" Canvas.Top="100" Click="OnZoomIn" Width="50" Height="50">+</Button>
                 <Button x:Name="ZoomOut" FontSize="36" Canvas.Right="50" Canvas.Bottom="100" Click="OnZoomOut" Width="50" Height="50">-</Button>
             </Canvas>
         </GroupBox>
