@@ -5,10 +5,32 @@ namespace VideoGeoTagger;
 
 public class SplittingAdministrator
 {
+ 
+    /// <summary>
+    /// The button to create a splitting point.
+    /// </summary>
     private readonly Button m_createButton;
+
+
+    /// <summary>
+    /// The button to delete a splitting point.
+    /// </summary>
     private readonly Button m_deleteButton;
+
+    /// <summary>
+    /// The list box with the splitting points.
+    /// </summary>
     private readonly ListBox m_listBox;
+
+    /// <summary>
+    /// The time span with the splitting points contained.
+    /// </summary>
     private readonly List<TimeSpan> m_splittingPoints = new List<TimeSpan>();
+
+
+    /// <summary>
+    /// The video administrator.
+    /// </summary>
     private readonly VideoAdministrator m_videoAdmin;
 
     public SplittingAdministrator(ListBox listBox, Button createButton, Button deleteButton,
@@ -25,6 +47,10 @@ public class SplittingAdministrator
         m_videoAdmin = videoAdmin;
     }
 
+
+    /// <summary>
+    /// Gets called from the outside when new data is loaded.
+    /// </summary>
     public void ResetData()
     {
         m_listBox.Items.Clear();
@@ -32,6 +58,11 @@ public class SplittingAdministrator
         m_splittingPoints.Clear();
     }
 
+    /// <summary>
+    /// The delete command has been clicked for a splitting point.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void DeleteClicked(object sender, RoutedEventArgs e)
     {
         m_deleteButton.IsEnabled = false;
@@ -39,6 +70,12 @@ public class SplittingAdministrator
         UpdateList();
     }
 
+
+    /// <summary>
+    /// The create command has been clicked for the splitting point.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void CreateClicked(object sender, RoutedEventArgs e)
     {
         TimeSpan currentSplittingPoint = m_videoAdmin.VideoPosition;
@@ -46,6 +83,10 @@ public class SplittingAdministrator
         UpdateList();
     }
 
+
+    /// <summary>
+    /// The list with the splitting point needs updating.
+    /// </summary>
     private void UpdateList()
     {
         m_splittingPoints.Sort();
@@ -54,6 +95,12 @@ public class SplittingAdministrator
             m_listBox.Items.Add(point.ToString());
     }
 
+
+    /// <summary>
+    /// An item on the splitting point list has been added.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ItemSelected(object sender, SelectionChangedEventArgs e)
     {
         int index = m_listBox.SelectedIndex;

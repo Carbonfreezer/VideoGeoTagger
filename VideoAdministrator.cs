@@ -9,7 +9,7 @@ namespace VideoGeoTagger;
 
 public class VideoAdministrator
 {
-    private MediaClock? m_mediaClock;
+    private MediaPlayer? m_mediaPlayer;
     private bool m_mediaActive;
     private TimeSpan m_videoLength;
     private readonly Canvas m_displayCanvas;
@@ -23,9 +23,9 @@ public class VideoAdministrator
     {
         get
         {
-            if ((m_mediaClock == null) || (!m_mediaClock.CurrentTime.HasValue))
+            if ((m_mediaPlayer == null))
                 return TimeSpan.Zero;
-            return m_mediaClock.CurrentTime.Value;
+            return m_mediaPlayer.Position;
         }
         set
         {
@@ -48,7 +48,6 @@ public class VideoAdministrator
         m_slider.PreviewMouseUp += SliderValueChanged;
     }
 
-  
 
     /// <summary>
     /// Gets called on mouse release of the slider.
@@ -69,35 +68,22 @@ public class VideoAdministrator
     public void LoadVideo(string fileName)
     {
         m_mediaActive = false;
-        MediaTimeline mediaTimeLine = new MediaTimeline(new Uri(fileName));
-        m_mediaClock = mediaTimeLine.CreateClock();
-        MediaPlayer mediaPlayer = new MediaPlayer
-        {
-            Clock = m_mediaClock
-        };
+        m_mediaPlayer = new MediaPlayer();
+        m_mediaPlayer.Open(new Uri(fileName));
         VideoDrawing drawing = new VideoDrawing
         {
-            Player = mediaPlayer,
+            Player = m_mediaPlayer,
             Rect = new Rect(0, 0, 1, 1)
         };
         m_displayCanvas.Background = new DrawingBrush(drawing);
         m_slider.Value = 0.0f;
-        mediaPlayer.MediaOpened += MediaOpened;
-        m_mediaClock.CurrentStateInvalidated += StateChange;
+        m_mediaPlayer.MediaOpened += MediaOpened;
+        m_mediaPlayer.BufferingEnded += Test;
     }
 
-    private void StateChange(object? sender, EventArgs e)
+    private void Test(object? sender, EventArgs e)
     {
-        if (!m_mediaActive || (m_mediaClock == null) || (m_mediaClock.CurrentState != ClockState.Active))
-            return;
-        
-        if (!m_mediaClock.IsPaused)
-            m_mediaClock.Controller?.Pause();
-
-        if (m_mediaClock.CurrentTime.HasValue)
-        {
-            m_slider.Value = m_mediaClock.CurrentTime.Value / m_videoLength * 100.0f;
-        }
+        Trace.WriteLine(e);
     }
 
 
@@ -109,8 +95,12 @@ public class VideoAdministrator
     private void MediaOpened(object? sender, EventArgs e)
     {
         m_mediaActive = true;
-        if (m_mediaClock != null)
-            m_videoLength = m_mediaClock.NaturalDuration.TimeSpan;
+        if (m_mediaPlayer == null)
+            return;
+        
+        m_videoLength = m_mediaPlayer.NaturalDuration.TimeSpan;
+        m_mediaPlayer.SpeedRatio = 0.0000000001;
+        m_mediaPlayer.Play();
         ProcessSliderValue();
     }
 
@@ -119,12 +109,13 @@ public class VideoAdministrator
     /// </summary>
     private void ProcessSliderValue()
     {
-        if (m_mediaClock == null)
+        if (m_mediaPlayer == null)
             return;
-
-        if (m_mediaClock.IsPaused)
-            m_mediaClock.Controller?.Resume();
+       
         TimeSpan target = m_videoLength * ( m_slider.Value / 100.0f);
-        m_mediaClock.Controller?.Seek(target, TimeSeekOrigin.BeginTime);
+        m_mediaPlayer.Position = target;
+        m_mediaPlayer.Play();
+        Thread.Sleep(300);
+        m_mediaPlayer.Pause();
     }
 }
