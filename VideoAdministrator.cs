@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -13,14 +14,27 @@ public class VideoAdministrator
     private TimeSpan m_videoLength;
     private readonly Canvas m_displayCanvas;
     private readonly Slider m_slider;
-    private readonly Timer m_resumeTimer;
-
+   
 
     /// <summary>
-    /// Asks for the current video position.
+    /// Asks for the current video position or sets it.
     /// </summary>
-    public TimeSpan? VideoPosition => m_mediaClock?.CurrentTime;
-
+    public TimeSpan VideoPosition
+    {
+        get
+        {
+            if ((m_mediaClock == null) || (!m_mediaClock.CurrentTime.HasValue))
+                return TimeSpan.Zero;
+            return m_mediaClock.CurrentTime.Value;
+        }
+        set
+        {
+            double relativeValue = value / m_videoLength;
+            m_slider.Value = relativeValue * 100.0f;
+            ProcessSliderValue();
+        }
+    }    
+ 
 
     /// <summary>
     /// Generates the video administrator from the slider and the display canvas.
@@ -32,17 +46,9 @@ public class VideoAdministrator
         m_displayCanvas = displayCanvas;
         m_slider = usedSlider;
         m_slider.PreviewMouseUp += SliderValueChanged;
-        m_resumeTimer = new Timer(PauseVideo);
     }
 
-    /// <summary>
-    /// Gets invoked after some time to pause the video again.
-    /// </summary>
-    /// <param name="state"></param>
-    private void PauseVideo(object? state)
-    {
-        m_mediaClock?.Controller?.Pause();
-    }
+  
 
     /// <summary>
     /// Gets called on mouse release of the slider.
@@ -77,8 +83,22 @@ public class VideoAdministrator
         m_displayCanvas.Background = new DrawingBrush(drawing);
         m_slider.Value = 0.0f;
         mediaPlayer.MediaOpened += MediaOpened;
+        m_mediaClock.CurrentStateInvalidated += StateChange;
     }
 
+    private void StateChange(object? sender, EventArgs e)
+    {
+        if (!m_mediaActive || (m_mediaClock == null) || (m_mediaClock.CurrentState != ClockState.Active))
+            return;
+        
+        if (!m_mediaClock.IsPaused)
+            m_mediaClock.Controller?.Pause();
+
+        if (m_mediaClock.CurrentTime.HasValue)
+        {
+            m_slider.Value = m_mediaClock.CurrentTime.Value / m_videoLength * 100.0f;
+        }
+    }
 
 
     /// <summary>
@@ -106,6 +126,5 @@ public class VideoAdministrator
             m_mediaClock.Controller?.Resume();
         TimeSpan target = m_videoLength * ( m_slider.Value / 100.0f);
         m_mediaClock.Controller?.Seek(target, TimeSeekOrigin.BeginTime);
-        m_resumeTimer.Change(300, int.MaxValue);
     }
 }
