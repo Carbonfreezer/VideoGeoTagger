@@ -16,7 +16,11 @@
             </TabItem>
             <TabItem Header="Splitting Points">
                 <Canvas>
-
+                    <ListBox x:Name="SplittingList" Width="400" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single">
+                       
+                    </ListBox>
+                    <Button x:Name="ButtonCreateSplitting" FontSize="18" Canvas.Left="121" Canvas.Top="854" HorizontalAlignment="Center" VerticalAlignment="Top">Create Splitting Point</Button>
+                    <Button x:Name="ButtonDeleteSplitting" FontSize="18" Canvas.Left="121" Canvas.Top="919" HorizontalAlignment="Center" VerticalAlignment="Top">Delete Splitting Point</Button>
                 </Canvas>
             </TabItem>
             <TabItem Header="Segment Synchronization">

@@ -11,10 +11,14 @@ public partial class MainWindow : Window
 {
 
     private readonly VideoAdministrator m_videoAdmin;
+    private readonly SplittingAdministrator m_splitting;
+
     public MainWindow()
     {
         InitializeComponent();
         m_videoAdmin = new VideoAdministrator(VideoImage, VideoSlider);
+        m_splitting =
+            new SplittingAdministrator(SplittingList, ButtonCreateSplitting, ButtonDeleteSplitting, m_videoAdmin);
     }
 
 
@@ -86,7 +90,8 @@ public partial class MainWindow : Window
         if (result == true)
         {
             m_videoAdmin.LoadVideo(dialog.FileName);
-      
+            m_splitting.ResetData();
+
             // TODO: Here we set the movie information.
         }
     }
