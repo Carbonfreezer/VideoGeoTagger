@@ -5,14 +5,41 @@ using System.Windows.Media;
 
 namespace VideoGeoTagger;
 
+/// <summary>
+/// System to scroll through the video.
+/// </summary>
 public class VideoAdministrator
 {
+    /// <summary>
+    /// The canvas where the video gets displayed.
+    /// </summary>
     private readonly Canvas m_displayCanvas;
+
+    /// <summary>
+    /// The slider to scroll through the time line.
+    /// </summary>
     private readonly Slider m_slider;
+
+    /// <summary>
+    /// Indicates if the media is present.
+    /// </summary>
     private bool m_mediaActive;
+
+    /// <summary>
+    /// The media player to show the video.
+    /// </summary>
     private MediaPlayer? m_mediaPlayer;
+
+    /// <summary>
+    /// The total length of the video.
+    /// </summary>
     private TimeSpan m_videoLength;
 
+
+    /// <summary>
+    /// Indicates the total length of the video.
+    /// </summary>
+    public TimeSpan TotalLength => m_videoLength;
 
     /// <summary>
     ///     Generates the video administrator from the slider and the display canvas.
