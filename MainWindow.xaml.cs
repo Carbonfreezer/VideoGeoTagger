@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
+using VideoGeoTagger.GpxData;
 
 namespace VideoGeoTagger;
 
@@ -12,6 +13,8 @@ public partial class MainWindow : Window
 
     private readonly VideoAdministrator m_videoAdmin;
     private readonly SplittingAdministrator m_splitting;
+    private readonly GpxRepresentation m_gpxRepresentation;
+
 
     public MainWindow()
     {
@@ -19,6 +22,7 @@ public partial class MainWindow : Window
         m_videoAdmin = new VideoAdministrator(VideoImage, VideoSlider);
         m_splitting =
             new SplittingAdministrator(SplittingList, ButtonCreateSplitting, ButtonDeleteSplitting, m_videoAdmin);
+        m_gpxRepresentation = new GpxRepresentation();
     }
 
 
@@ -117,6 +121,7 @@ public partial class MainWindow : Window
         {
             // Open document
             string filename = dialog.FileName;
+            m_gpxRepresentation.LoadFromFile(filename);
 
             // TODO: Here we set the movie information.
         }
