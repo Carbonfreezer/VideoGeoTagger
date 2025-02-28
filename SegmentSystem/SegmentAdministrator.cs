@@ -101,7 +101,8 @@ public class SegmentAdministrator
     /// </summary>
     private void UpdateMarker()
     {
-        VideoSegment? relevantSegment = m_listOfSegments.Find(seg => seg.IsResponsibleVideoTime(m_videoAdmin.VideoPosition));
+        TimeSpan videoTime = m_videoAdmin.VideoPosition;
+        VideoSegment? relevantSegment = m_listOfSegments.Find(seg => seg.IsResponsibleVideoTime(videoTime));
         Debug.Assert(relevantSegment != null, "Should not happen");
         if (!relevantSegment.IsSynchronized)
         {
@@ -109,7 +110,7 @@ public class SegmentAdministrator
             return;
         }
 
-        TimeSpan gpxTime = relevantSegment.GetGpxTime(m_videoAdmin.VideoPosition);
+        TimeSpan gpxTime = relevantSegment.GetGpxTime(videoTime);
         m_gpxVisualizer.SetMarker(gpxTime);
     }
 
