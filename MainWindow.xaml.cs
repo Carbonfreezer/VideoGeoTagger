@@ -24,10 +24,16 @@ public partial class MainWindow : Window
             new SplittingAdministrator(SplittingList, ButtonCreateSplitting, ButtonDeleteSplitting, m_videoAdmin);
         m_gpxRepresentation = new GpxRepresentation();
         m_gpxVisualizer = new GpxVisualizer(GpxImage, GpxZoomSlider, m_gpxRepresentation);
+        m_gpxVisualizer.OnMapPositionSelected += GpxVisualizerOnOnMapPositionSelected;
     }
 
+    private void GpxVisualizerOnOnMapPositionSelected(float latitude, float longitude)
+    {
+        TimeSpan bestTime = m_gpxRepresentation.GetClosestTime(latitude, longitude);
+        var target = m_gpxRepresentation.GetPositionForTimeStamp(bestTime);
+        m_gpxVisualizer.SetMarker(target.latitude, target.longitude);
+    }
 
-    
 
     /// <summary>
     ///     Gets called when we press the load movie button.

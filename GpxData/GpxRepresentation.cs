@@ -126,6 +126,27 @@ public class GpxRepresentation
         return bestEntry.GetTrackingElement(doc, finalTime);
     }
 
+
+    /// <summary>
+    /// Gets the angular distance on longitude. Takes care of the wrap around. 
+    /// </summary>
+    /// <param name="angleA">First angle.</param>
+    /// <param name="angleB">Second angle.</param>
+    /// <returns>Angular distance.</returns>
+    private float GetLongitudeDistance(float angleA, float angleB)
+    {
+        float diff = angleA - angleB;
+
+        if (diff > 180.0f)
+            diff = 360.0f - diff;
+
+        if (diff < -180.0f)
+            diff = 380.0f + diff;
+
+        return diff;
+    }
+
+
     /// <summary>
     ///     Asks for a given latitude and longitude the closest point we have selected.
     /// </summary>
@@ -135,7 +156,7 @@ public class GpxRepresentation
     public TimeSpan GetClosestTime(float latitude, float longitude)
     {
         GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
-            MathF.Pow(latitude - logEntry.m_latitude, 2.0f) + MathF.Pow(longitude - logEntry.m_longitude, 2.0f));
+            MathF.Pow(latitude - logEntry.m_latitude, 2.0f) + MathF.Pow(GetLongitudeDistance(longitude, logEntry.m_longitude), 2.0f));
 
         Debug.Assert(bestEntry != null, "No Entry found.");
         return bestEntry.m_timeFromBeginning;
@@ -148,7 +169,7 @@ public class GpxRepresentation
     /// <returns>Position, that was obtained from the time stamp.</returns>
     public (float latitude, float longitude) GetPositionForTimeStamp(TimeSpan fromStart)
     {
-        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry => (logEntry.m_timeFromBeginning - fromStart).Seconds);
+        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry => Math.Abs( logEntry.m_timeFromBeginning.TotalSeconds - fromStart.TotalSeconds));
         Debug.Assert(bestEntry != null, "No Entry found.");
 
         return (bestEntry.m_latitude, bestEntry.m_longitude);
