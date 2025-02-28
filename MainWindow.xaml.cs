@@ -26,7 +26,7 @@ public partial class MainWindow : Window
             new SplittingAdministrator(SplittingList, ButtonCreateSplitting, ButtonDeleteSplitting, m_videoAdmin);
         m_gpxRepresentation = new GpxRepresentation();
         m_gpxVisualizer = new GpxVisualizer(GpxImage, GpxZoomSlider, m_gpxRepresentation);
-        m_segmentAdministrator = new SegmentAdministrator(SegmentList, Synchronize, m_videoAdmin, m_splitting, m_gpxVisualizer);
+        m_segmentAdministrator = new SegmentAdministrator(SegmentList, Synchronize, SaveButton, m_videoAdmin, m_splitting, m_gpxVisualizer, m_gpxRepresentation);
     }
 
     

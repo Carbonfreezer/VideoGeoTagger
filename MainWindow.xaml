@@ -8,11 +8,13 @@
         Title="Video Geo Tagger" Height="1200" Width="1600" ResizeMode="NoResize">
     <Canvas>
         <TabControl x:Name="tabControl" Height="1150" Width="420" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <TabItem Header="Data Loading">
+            <TabItem Header="Data Loading / Saving">
                 <Canvas>
-                    <Button Canvas.Left="122" Canvas.Top="69"  FontSize="18" Click="OnLoadVideo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="140" >Load Video</Button>
-                    <Button Canvas.Left="122" Canvas.Top="131"  FontSize="18" Click="OnLoadGpx" HorizontalAlignment="Left" VerticalAlignment="Center" Width="140">Load Gpx</Button>
-                    <Label FontSize="18" Canvas.Left="33" Canvas.Top="399">Map Data provided by OpenStreetMap</Label>
+                    <Button Canvas.Left="83" Canvas.Top="69"  FontSize="18" Click="OnLoadVideo" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" >Load Video</Button>
+                    <Button Canvas.Left="83" Canvas.Top="131"  FontSize="18" Click="OnLoadGpx" HorizontalAlignment="Left" VerticalAlignment="Center" Width="218" Height="48">Load Gpx</Button>
+                    <Label FontSize="18" Canvas.Left="33" Canvas.Top="854" HorizontalAlignment="Center" VerticalAlignment="Top">Map Data provided by OpenStreetMap</Label>
+
+                    <Button x:Name="SaveButton" FontSize="18" Canvas.Left="83" Canvas.Top="241"  Width="218" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Top" Height="48">Save modified GPX</Button>
                 </Canvas>
             </TabItem>
             <TabItem Header="Splitting Points">
@@ -30,11 +32,7 @@
                     <CheckBox x:Name="Synchronize" FontSize="18" Canvas.Left="10" Canvas.Top="839" Height="30" Width="138" HorizontalAlignment="Left" VerticalAlignment="Top">Synchronize</CheckBox>
                 </Canvas>
             </TabItem>
-            <TabItem Header="Data Saving">
-                <Canvas>
-
-                </Canvas>
-            </TabItem>
+            
         </TabControl>
         <GroupBox x:Name="VideoControl" Height="580" Header="Video Control" Width="1150"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="0">
             <Canvas>

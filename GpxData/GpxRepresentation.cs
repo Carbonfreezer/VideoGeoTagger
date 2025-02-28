@@ -119,9 +119,9 @@ public class GpxRepresentation
     public XmlElement GetTrackingPointElement(XmlDocument doc, TimeSpan gpxTime, TimeSpan videoTime)
     {
         // First we need to get the entry.
-        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry => (logEntry.m_timeFromBeginning - gpxTime).Seconds);
+        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry => Math.Abs(logEntry.m_timeFromBeginning.TotalSeconds - gpxTime.TotalSeconds));
         Debug.Assert(bestEntry != null, "No Entry found.");
-
+       
         DateTime finalTime = m_virtualStartTime + videoTime;
         return bestEntry.GetTrackingElement(doc, finalTime);
     }
