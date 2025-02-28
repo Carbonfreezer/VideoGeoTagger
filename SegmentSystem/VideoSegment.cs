@@ -9,6 +9,12 @@ namespace VideoGeoTagger.TimeSpanSystem;
 public class VideoSegment
 {
     /// <summary>
+    ///     The time we want to stay away from an inner border.
+    /// </summary>
+    private const float BlackoutTime = 2.0f;
+
+
+    /// <summary>
     ///     The endpoint in video time.
     /// </summary>
     private readonly TimeSpan m_endPoint;
@@ -22,6 +28,16 @@ public class VideoSegment
     ///     The time we have to add to the film time to get the gpx time.
     /// </summary>
     private TimeSpan m_filmToGpxAdder;
+
+    /// <summary>
+    ///     Marks the segment as first.
+    /// </summary>
+    public bool m_isFirst;
+
+    /// <summary>
+    ///     Marks the segment as last.
+    /// </summary>
+    public bool m_isLast;
 
 
     /// <summary>
@@ -70,6 +86,17 @@ public class VideoSegment
         return (videoTime >= m_startPoint) && (videoTime <= m_endPoint);
     }
 
+    /// <summary>
+    ///     Simply checks if we are not too close to an inner border.
+    /// </summary>
+    /// <param name="videoTime"></param>
+    /// <returns>Indicates that we are not too close to a border.</returns>
+    public bool CanGetSave(TimeSpan videoTime)
+    {
+        bool leftOk = m_isFirst || (videoTime >= m_startPoint + TimeSpan.FromSeconds(BlackoutTime));
+        bool rightOk = m_isLast || (videoTime <= m_endPoint - TimeSpan.FromSeconds(BlackoutTime));
+        return leftOk && rightOk;
+    }
 
     /// <summary>
     ///     Gets the corresponding time in the gpx time line.
@@ -85,7 +112,7 @@ public class VideoSegment
     }
 
     /// <summary>
-    /// Checks if we are responsible for a gpx time.
+    ///     Checks if we are responsible for a gpx time.
     /// </summary>
     /// <param name="gpxTime">The gpx time we have.</param>
     /// <returns>True if we are responsible.</returns>
@@ -99,7 +126,7 @@ public class VideoSegment
     }
 
     /// <summary>
-    /// Asks for the video time. and a given gpx time fails, if we are not responsible.
+    ///     Asks for the video time. and a given gpx time fails, if we are not responsible.
     /// </summary>
     /// <param name="gpxTime">gpx time</param>
     /// <returns>video time</returns>

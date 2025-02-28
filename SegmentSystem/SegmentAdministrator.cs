@@ -117,6 +117,9 @@ public class SegmentAdministrator
             return;
 
 
+        m_listOfSegments[0].m_isFirst = true;
+        m_listOfSegments[^1].m_isLast = true;
+
         TimeSpan oneSecond = TimeSpan.FromSeconds(1.0f);
         TimeSpan scanning = TimeSpan.Zero;
 
@@ -132,39 +135,33 @@ public class SegmentAdministrator
 
         TimeSpan gpxTime;
         XmlElement trkPoint;
+        VideoSegment? relevantSegment;
         while (scanning < m_totalVideoTime)
         {
-            gpxTime = GetGpxTime(scanning);
-            trkPoint = m_gpxAdministration.GetTrackingPointElement(document, gpxTime, scanning);
-            trkSeg.AppendChild(trkPoint);
+            relevantSegment = m_listOfSegments.Find(seg => seg.IsResponsibleVideoTime(scanning));
+            if ((relevantSegment != null) && (relevantSegment.CanGetSave(scanning)))
+            {
+                gpxTime = relevantSegment.GetGpxTime(scanning);
+                trkPoint = m_gpxAdministration.GetTrackingPointElement(document, gpxTime, scanning);
+                trkSeg.AppendChild(trkPoint);
+            }
+
             scanning += oneSecond;
         }
 
         // Get the final point.
-        gpxTime = GetGpxTime(m_totalVideoTime);
+        relevantSegment = m_listOfSegments.Find(seg => seg.IsResponsibleVideoTime(m_totalVideoTime));
+
+        Debug.Assert(relevantSegment != null, "Should not happen");
+        gpxTime = relevantSegment.GetGpxTime(m_totalVideoTime);
         trkPoint = m_gpxAdministration.GetTrackingPointElement(document, gpxTime, m_totalVideoTime);
         trkSeg.AppendChild(trkPoint);
 
-       
-
         using (XmlWriter writer = XmlWriter.Create(dialog.FileName))
             document.WriteTo(writer);
-
     }
 
-    /// <summary>
-    /// Gets the GPX time for the video time.
-    /// </summary>
-    /// <param name="videoTime">Time on video coding.</param>
-    /// <returns>GPX time</returns>
-    private TimeSpan GetGpxTime(TimeSpan videoTime)
-    {
-        VideoSegment? relevantSegment = m_listOfSegments.Find(seg => seg.IsResponsibleVideoTime(videoTime));
-        Debug.Assert(relevantSegment != null, "Should not happen");
-        
-        TimeSpan gpxTime = relevantSegment.GetGpxTime(videoTime);
-        return gpxTime;
-    }
+    
 
     /// <summary>
     /// Gets called, when the user has picked onto the map to get the closest gpx time.
