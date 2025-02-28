@@ -110,6 +110,10 @@ public class GpxVisualizer
        
     }
 
+
+    /// <summary>
+    /// The mouse wheel controls the zoom.
+    /// </summary>
     private void ControlImageOnMouseWheel(object sender, MouseWheelEventArgs e)
     {
         if (e.Delta > 0)
@@ -126,6 +130,10 @@ public class GpxVisualizer
         UpdateTransformation();
     }
 
+
+    /// <summary>
+    /// On right mouse button we pan.
+    /// </summary>
     private void ControlImageOnMouseMove(object sender, MouseEventArgs e)
     {
         Point position = e.GetPosition((Image)sender);
@@ -140,6 +148,9 @@ public class GpxVisualizer
         UpdateTransformation();
     }
 
+    /// <summary>
+    /// Mouse down generates latitude and longitude positions.
+    /// </summary>
     private void ControlImageOnMouseDown(object sender, MouseButtonEventArgs e)
     {
         // TODO: Click event for left button.
@@ -268,7 +279,7 @@ public class GpxVisualizer
     private Uri GetImageUri(int xTile, int yTile)
     {
         // HACK HACK HACK
-        // return new Uri(@"D:\HoloLensTest\VideoGeoTagger\Dummy.png");
+        return new Uri(@"D:\HoloLensTest\VideoGeoTagger\Dummy.png");
 
         return new Uri($"{TileProvider}/{ScalingLevel}/{xTile}/{yTile}.png");
     }

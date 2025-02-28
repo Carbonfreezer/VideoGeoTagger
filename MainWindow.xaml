@@ -38,7 +38,7 @@
         <GroupBox x:Name="VideoControl" Height="580" Header="Video Control" Width="1150"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="0">
             <Canvas>
                 <Canvas x:Name="VideoImage" Height="530" Width="1140" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <Slider x:Name="VideoSlider" Height="20" Width="1140" Canvas.Left="0" Canvas.Bottom="0" Maximum="100"/>
+                <Slider x:Name="VideoSlider" Height="20" Width="1140" Canvas.Left="0" Canvas.Bottom="0" Maximum="100" SmallChange="0.03"/>
             </Canvas>
         </GroupBox>
 

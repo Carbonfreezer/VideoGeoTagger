@@ -41,6 +41,17 @@ public class VideoAdministrator
     /// </summary>
     private TimeSpan m_videoLength;
 
+
+    /// <summary>
+    /// Flags, that we have the slider drag started,.
+    /// </summary>
+    private bool m_dragStarted;
+
+    /// <summary>
+    /// Suspends slider change reaction to avoid recursion.
+    /// </summary>
+    private bool m_suspendSliderReaction;
+
     /// <summary>
     ///     Generates the video administrator from the slider and the display canvas.
     /// </summary>
@@ -50,7 +61,42 @@ public class VideoAdministrator
     {
         m_displayCanvas = displayCanvas;
         m_slider = usedSlider;
-        m_slider.PreviewMouseUp += SliderValueChanged;
+        m_slider.PreviewMouseUp += SliderLeft;
+        m_slider.PreviewMouseDown += SliderStarted;
+        m_slider.ValueChanged += SliderOnValueChanged;
+    }
+
+
+    /// <summary>
+    /// Gets called when the user starts manipulating the slider with the mouse.
+    /// </summary>
+    private void SliderStarted(object sender, MouseButtonEventArgs e)
+    {
+        m_dragStarted = true;
+    }
+
+
+    /// <summary>
+    /// Gets called, when the user starts manipulating the slider with the mouse.
+    /// </summary>
+    private void SliderLeft(object sender, MouseButtonEventArgs e)
+    {
+        m_dragStarted = false;
+        ProcessSliderValue();
+    }
+
+
+    /// <summary>
+    /// Gets called on slider change event.
+    /// </summary>
+    private void SliderOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (m_dragStarted)
+            return;
+        if (m_suspendSliderReaction)
+            return;
+
+        ProcessSliderValue();
     }
 
 
@@ -75,7 +121,6 @@ public class VideoAdministrator
         {
             double relativeValue = value / m_videoLength;
             m_slider.Value = relativeValue * 100.0f;
-            ProcessSliderValue();
         }
     }
 
@@ -112,7 +157,9 @@ public class VideoAdministrator
             Rect = new Rect(0, 0, 1, 1)
         };
         m_displayCanvas.Background = new DrawingBrush(drawing);
+        m_suspendSliderReaction = true;
         m_slider.Value = 0.0f;
+        m_suspendSliderReaction = false;
         m_mediaPlayer.MediaOpened += MediaOpened;
     }
 
@@ -139,6 +186,12 @@ public class VideoAdministrator
     /// </summary>
     private void ProcessSliderValue()
     {
+        if (m_suspendSliderReaction)
+            return;
+
+        if (!m_mediaActive)
+            return;
+
         if (m_mediaPlayer == null)
             return;
 
@@ -151,7 +204,9 @@ public class VideoAdministrator
 
         m_mediaPlayer.Pause();
 
+        m_suspendSliderReaction = true;
         m_slider.Value = 100.0f * (m_mediaPlayer.Position / m_videoLength);
+        m_suspendSliderReaction = false;
         OnVideoPositionChanged?.Invoke(m_mediaPlayer.Position);
     }
 }
