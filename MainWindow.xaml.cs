@@ -14,7 +14,7 @@ public partial class MainWindow : Window
     private readonly VideoAdministrator m_videoAdmin;
     private readonly SplittingAdministrator m_splitting;
     private readonly GpxRepresentation m_gpxRepresentation;
-
+    private readonly GpxVisualizer m_gpxVisualizer;
 
     public MainWindow()
     {
@@ -23,56 +23,11 @@ public partial class MainWindow : Window
         m_splitting =
             new SplittingAdministrator(SplittingList, ButtonCreateSplitting, ButtonDeleteSplitting, m_videoAdmin);
         m_gpxRepresentation = new GpxRepresentation();
+        m_gpxVisualizer = new GpxVisualizer(GpxImage, GpxZoomSlider, m_gpxRepresentation);
     }
 
 
-    /// <summary>
-    ///     Gets called, when the zoom in button has been pressed
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnZoomIn(object sender, RoutedEventArgs e)
-    {
-    }
-
-
-    /// <summary>
-    ///     Gets called when the zoom out button has been pressed.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnZoomOut(object sender, RoutedEventArgs e)
-    {
-    }
-
-
-    /// <summary>
-    ///     Gets called when the mouse has been oved up un the gpx window.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnGpxMouseDown(object sender, MouseButtonEventArgs e)
-    {
-    }
-
-    /// <summary>
-    ///     Gets called when the mouse is released over the GPX window.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnGpxMouseUp(object sender, MouseButtonEventArgs e)
-    {
-    }
-
-    /// <summary>
-    ///     Gets called when the mouse is moved over the gpx window.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnGpxMouseMove(object sender, MouseEventArgs e)
-    {
-    }
-
+    
 
     /// <summary>
     ///     Gets called when we press the load movie button.
@@ -122,6 +77,7 @@ public partial class MainWindow : Window
             // Open document
             string filename = dialog.FileName;
             m_gpxRepresentation.LoadFromFile(filename);
+            m_gpxVisualizer.UpdateRepresentation();
 
             // TODO: Here we set the movie information.
         }

@@ -11,6 +11,12 @@ namespace VideoGeoTagger;
 public class VideoAdministrator
 {
     /// <summary>
+    ///     A delegate that informs if the slider position has been changed.
+    /// </summary>
+    /// <param name="videoPosition">The position we are currently in the video.</param>
+    public delegate void InformPositionChanged(TimeSpan videoPosition);
+
+    /// <summary>
     ///     The canvas where the video gets displayed.
     /// </summary>
     private readonly Canvas m_displayCanvas;
@@ -72,6 +78,11 @@ public class VideoAdministrator
             ProcessSliderValue();
         }
     }
+
+    /// <summary>
+    ///     The event that the video position has been changed.
+    /// </summary>
+    public event InformPositionChanged? OnVideoPositionChanged;
 
 
     /// <summary>
@@ -141,5 +152,6 @@ public class VideoAdministrator
         m_mediaPlayer.Pause();
 
         m_slider.Value = 100.0f * (m_mediaPlayer.Position / m_videoLength);
+        OnVideoPositionChanged?.Invoke(m_mediaPlayer.Position);
     }
 }

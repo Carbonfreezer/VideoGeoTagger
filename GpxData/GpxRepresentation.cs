@@ -40,6 +40,15 @@ public class GpxRepresentation
         }
     }
 
+
+    /// <summary>
+    /// Gets an enumerable for latitude an longitude points for painting.
+    /// </summary>
+    public IEnumerable<(float latitude, float longitude)> CoordinatePoints
+    {
+        get { return m_originalNodes.Select(entry => (entry.m_latitude, entry.m_longitude)); }
+    }
+
     /// <summary>
     ///     Loads the data from the file and builds the internal list.
     /// </summary>

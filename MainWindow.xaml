@@ -17,7 +17,7 @@
             <TabItem Header="Splitting Points">
                 <Canvas>
                     <ListBox x:Name="SplittingList" Width="400" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single">
-                       
+
                     </ListBox>
                     <Button x:Name="ButtonCreateSplitting" FontSize="18" Canvas.Left="121" Canvas.Top="854" HorizontalAlignment="Center" VerticalAlignment="Top">Create Splitting Point</Button>
                     <Button x:Name="ButtonDeleteSplitting" FontSize="18" Canvas.Left="121" Canvas.Top="919" HorizontalAlignment="Center" VerticalAlignment="Top">Delete Splitting Point</Button>
@@ -43,9 +43,8 @@
 
         <GroupBox x:Name="GpxControl" Height="580" Header="Gpx Control" Width="1150"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="0" Canvas.Bottom="0">
             <Canvas>
-                <Image x:Name="GpxImage" Height="550" Width="1000" HorizontalAlignment="Left" VerticalAlignment="Top" MouseDown="OnGpxMouseDown" MouseUp="OnGpxMouseUp" MouseMove="OnGpxMouseMove" />
-                <Button x:Name="ZoomIn" FontSize="36" Canvas.Right="50" Canvas.Top="100" Click="OnZoomIn" Width="50" Height="50">+</Button>
-                <Button x:Name="ZoomOut" FontSize="36" Canvas.Right="50" Canvas.Bottom="100" Click="OnZoomOut" Width="50" Height="50">-</Button>
+                <Image x:Name="GpxImage" Height="550" Width="1000" HorizontalAlignment="Left" VerticalAlignment="Top"  Stretch="None"/>
+                <Slider x:Name="GpxZoomSlider" Height="500" Width="20" Canvas.Left="1043" Canvas.Bottom="0" Maximum="100" Canvas.Top="29" Orientation="Vertical"/>
             </Canvas>
         </GroupBox>
 
