@@ -10,8 +10,9 @@
         <TabControl x:Name="tabControl" Height="1150" Width="420" HorizontalAlignment="Left" VerticalAlignment="Center">
             <TabItem Header="Data Loading">
                 <Canvas>
-                    <Button Canvas.Left="143" Canvas.Top="69"  FontSize="18" Click="OnLoadVideo" >Load Video</Button>
-                    <Button Canvas.Left="150" Canvas.Top="131"  FontSize="18" Click="OnLoadGpx">Load Gpx</Button>
+                    <Button Canvas.Left="122" Canvas.Top="69"  FontSize="18" Click="OnLoadVideo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="140" >Load Video</Button>
+                    <Button Canvas.Left="122" Canvas.Top="131"  FontSize="18" Click="OnLoadGpx" HorizontalAlignment="Left" VerticalAlignment="Center" Width="140">Load Gpx</Button>
+                    <Label FontSize="18" Canvas.Left="33" Canvas.Top="399">Map Data provided by OpenStreetMap</Label>
                 </Canvas>
             </TabItem>
             <TabItem Header="Splitting Points">
