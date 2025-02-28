@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using Microsoft.Win32;
 using VideoGeoTagger.GpxData;
+using VideoGeoTagger.SegmentSystem;
 
 namespace VideoGeoTagger;
 
@@ -15,6 +16,7 @@ public partial class MainWindow : Window
     private readonly SplittingAdministrator m_splitting;
     private readonly GpxRepresentation m_gpxRepresentation;
     private readonly GpxVisualizer m_gpxVisualizer;
+    private readonly SegmentAdministrator m_segmentAdministrator;
 
     public MainWindow()
     {
@@ -24,16 +26,10 @@ public partial class MainWindow : Window
             new SplittingAdministrator(SplittingList, ButtonCreateSplitting, ButtonDeleteSplitting, m_videoAdmin);
         m_gpxRepresentation = new GpxRepresentation();
         m_gpxVisualizer = new GpxVisualizer(GpxImage, GpxZoomSlider, m_gpxRepresentation);
-        m_gpxVisualizer.OnMapPositionSelected += GpxVisualizerOnOnMapPositionSelected;
+        m_segmentAdministrator = new SegmentAdministrator(SegmentList, Synchronize, m_videoAdmin, m_splitting, m_gpxVisualizer);
     }
 
-    private void GpxVisualizerOnOnMapPositionSelected(float latitude, float longitude)
-    {
-        TimeSpan bestTime = m_gpxRepresentation.GetClosestTime(latitude, longitude);
-        var target = m_gpxRepresentation.GetPositionForTimeStamp(bestTime);
-        m_gpxVisualizer.SetMarker(target.latitude, target.longitude);
-    }
-
+    
 
     /// <summary>
     ///     Gets called when we press the load movie button.
@@ -56,7 +52,6 @@ public partial class MainWindow : Window
         {
             m_videoAdmin.LoadVideo(dialog.FileName);
             m_splitting.ResetData();
-
             // TODO: Here we set the movie information.
         }
     }

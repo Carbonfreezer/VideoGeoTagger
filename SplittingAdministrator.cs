@@ -5,7 +5,19 @@ namespace VideoGeoTagger;
 
 public class SplittingAdministrator
 {
- 
+
+    /// <summary>
+    /// Delegate to inform another instance, that the splitting points have been changed.
+    /// </summary>
+    /// <param name="splittingPoints">List with splitting points.</param>
+    public delegate void SetNewSplittingPoints(List<TimeSpan> splittingPoints);
+
+
+    /// <summary>
+    /// Gets invoked when the splitting points have been changed,
+    /// </summary>
+    public event SetNewSplittingPoints? OnSplittingPointsChanged;
+
     /// <summary>
     /// The button to create a splitting point.
     /// </summary>
@@ -90,6 +102,7 @@ public class SplittingAdministrator
     private void UpdateList()
     {
         m_splittingPoints.Sort();
+        OnSplittingPointsChanged?.Invoke(m_splittingPoints);
         m_listBox.Items.Clear();
         foreach (TimeSpan point in m_splittingPoints)
             m_listBox.Items.Add(point.ToString());

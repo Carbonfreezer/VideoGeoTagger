@@ -79,7 +79,7 @@ public class GpxVisualizer
     /// <summary>
     /// The drawing offset point corresponds to the upper left corner of the system. Used to interpret mouse clicks.
     /// </summary>
-    private Point m_drawinOffsetPoint;
+    private Point m_drawingOffsetPoint;
 
    
 
@@ -107,14 +107,13 @@ public class GpxVisualizer
     /// <summary>
     /// Delegate for event that gets called, when a map position has been selected.
     /// </summary>
-    /// <param name="latitude">The latitude of the position.</param>
-    /// <param name="longitude">The longitude of the position.</param>
-    public delegate void MapPositionSelected(float latitude, float longitude);
+    /// <param name="gpxTime">The time point in gpx time we have been closest to</param>
+    public delegate void MapPositionSelected(TimeSpan gpxTime);
 
     /// <summary>
     /// Gets invoked, when a map position has been selected.
     /// </summary>
-    public event MapPositionSelected? OnMapPositionSelected;
+    public event MapPositionSelected? OnMapTimeSelected;
 
     /// <summary>
     /// Generates the gpx visualization module, that does all the internal handling.
@@ -172,11 +171,11 @@ public class GpxVisualizer
     /// <summary>
     /// Sets the marker at an indicated position.
     /// </summary>
-    /// <param name="latitude">Latitude to place the marker at.</param>
-    /// <param name="longitude">Longitude to place the marker at.</param>
-    public void SetMarker(float latitude, float longitude)
+    /// <param name="gpxTime">The time in gpx time we want to set the marker for.</param>
+    public void SetMarker(TimeSpan gpxTime)
     {
-        Vector tileCoords = GetInTileCoordinates(latitude, longitude);
+        var coord = m_gpxRepresentation.GetPositionForTimeStamp(gpxTime);
+        Vector tileCoords = GetInTileCoordinates(coord.latitude, coord.longitude);
         tileCoords *= TileSize;
 
         m_markerDrawing.Transform = new TranslateTransform(tileCoords.X, tileCoords.Y);
@@ -202,8 +201,8 @@ public class GpxVisualizer
         else
             m_scalingFactorMapDrawing -= 0.03f;
 
-        if (m_scalingFactorMapDrawing > 2.0f)
-            m_scalingFactorMapDrawing = 2.0f;
+        if (m_scalingFactorMapDrawing > 3.0f)
+            m_scalingFactorMapDrawing = 3.0f;
         if (m_scalingFactorMapDrawing < 0.01f)
             m_scalingFactorMapDrawing = 0.01f;
 
@@ -239,11 +238,11 @@ public class GpxVisualizer
 
         Vector mousePosition = (Vector)e.GetPosition((Image)sender);
         mousePosition /= m_scalingFactorMapDrawing;
-        mousePosition += (Vector)m_drawinOffsetPoint;
+        mousePosition += (Vector)m_drawingOffsetPoint;
         Vector scaledMousePosition = mousePosition / TileSize;
 
         var coords = GetGpxCoords(scaledMousePosition);
-        OnMapPositionSelected?.Invoke(coords.latitude, coords.longitude);
+        OnMapTimeSelected?.Invoke(m_gpxRepresentation.GetClosestTime(coords.latitude, coords.longitude));
     }
 
 
@@ -272,9 +271,9 @@ public class GpxVisualizer
 
         Vector transformedOrigin = (m_originTileSystem - m_renderOffsetPointInTiles) * TileSize;
 
-        m_drawinOffsetPoint = new Point(transformedOrigin.X - scaledSize.Width * 0.5,
+        m_drawingOffsetPoint = new Point(transformedOrigin.X - scaledSize.Width * 0.5,
             transformedOrigin.Y - scaledSize.Height * 0.5);
-        Rect clippingArea = new Rect(m_drawinOffsetPoint, scaledSize);
+        Rect clippingArea = new Rect(m_drawingOffsetPoint, scaledSize);
         m_baseGroup.ClipGeometry = new RectangleGeometry(clippingArea);
         m_baseGroup.Transform = new ScaleTransform(m_scalingFactorMapDrawing, m_scalingFactorMapDrawing, transformedOrigin.X, transformedOrigin.Y);
     }

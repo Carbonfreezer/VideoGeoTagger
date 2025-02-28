@@ -14,7 +14,7 @@ public class VideoAdministrator
     ///     A delegate that informs if the slider position has been changed.
     /// </summary>
     /// <param name="videoPosition">The position we are currently in the video.</param>
-    public delegate void InformPositionChanged(TimeSpan videoPosition);
+    public delegate void InformTiming(TimeSpan videoPosition);
 
     /// <summary>
     ///     The canvas where the video gets displayed.
@@ -101,12 +101,6 @@ public class VideoAdministrator
 
 
     /// <summary>
-    ///     Indicates the total length of the video.
-    /// </summary>
-    public TimeSpan TotalLength => m_videoLength;
-
-
-    /// <summary>
     ///     Asks for the current video position or sets it.
     /// </summary>
     public TimeSpan VideoPosition
@@ -115,7 +109,7 @@ public class VideoAdministrator
         {
             if ((m_mediaPlayer == null))
                 return TimeSpan.Zero;
-            return m_mediaPlayer.Position;
+            return m_videoLength < m_mediaPlayer.Position ? m_videoLength : m_mediaPlayer.Position;
         }
         set
         {
@@ -127,19 +121,14 @@ public class VideoAdministrator
     /// <summary>
     ///     The event that the video position has been changed.
     /// </summary>
-    public event InformPositionChanged? OnVideoPositionChanged;
+    public event InformTiming? OnVideoPositionChanged;
 
 
     /// <summary>
-    ///     Gets called on mouse release of the slider.
+    /// The event that gets called when the video is ready for timing.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void SliderValueChanged(object sender, MouseButtonEventArgs e)
-    {
-        if (m_mediaActive)
-            ProcessSliderValue();
-    }
+    public event InformTiming? OnVideoReadyForTiming;
+
 
 
     /// <summary>
@@ -177,6 +166,7 @@ public class VideoAdministrator
 
         m_videoLength = m_mediaPlayer.NaturalDuration.TimeSpan;
         m_mediaPlayer.SpeedRatio = 0.0000000001;
+        OnVideoReadyForTiming?.Invoke(m_videoLength);
         m_mediaPlayer.Play();
         ProcessSliderValue();
     }
