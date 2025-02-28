@@ -44,7 +44,7 @@
         <GroupBox x:Name="GpxControl" Height="580" Header="Gpx Control" Width="1150"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="0" Canvas.Bottom="0">
             <Canvas>
                 <Image x:Name="GpxImage" Height="550" Width="1000" HorizontalAlignment="Left" VerticalAlignment="Top"  Stretch="None"/>
-                <Slider x:Name="GpxZoomSlider" Height="500" Width="20" Canvas.Left="1043" Canvas.Bottom="0" Maximum="100" Canvas.Top="29" Orientation="Vertical"/>
+                <Slider x:Name="GpxZoomSlider" Height="500" Width="20" Canvas.Left="1043" Canvas.Bottom="0" Maximum="200" Canvas.Top="29" Orientation="Vertical"/>
             </Canvas>
         </GroupBox>
 

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -14,7 +15,7 @@ public class GpxVisualizer
     /// <summary>
     ///     The scaling level we use for the geo map tile system.
     /// </summary>
-    private const int ScalingLevel = 15;
+    private const int ScalingLevel = 14; // 15;
 
     /// <summary>
     ///     The size of a single tile in pixel.
@@ -57,7 +58,7 @@ public class GpxVisualizer
     /// <summary>
     /// The center of the represented region in tile coordinates.
     /// </summary>
-    private Point m_originTileSystem;
+    private Vector m_originTileSystem;
 
    
 
@@ -66,6 +67,23 @@ public class GpxVisualizer
     /// </summary>
     private float m_scalingFactorMapDrawing;
 
+    /// <summary>
+    /// The render offset point in tile coordinates we use for panning.
+    /// </summary>
+    private Vector m_renderOffsetPointInTiles;
+
+    /// <summary>
+    /// The orld mouse position from previous sample.
+    /// </summary>
+    private Point m_oldMousePosition;
+
+    /// <summary>
+    /// The slider we have.
+    /// </summary>
+    private readonly Slider m_gpxZoomSlider;
+
+
+    // First clip then transform.
 
     /// <summary>
     /// Generates the gpx visualization module, that does all the internal handling.
@@ -84,6 +102,49 @@ public class GpxVisualizer
         m_scalingFactorMapDrawing = 1.0f;
         gpxZoomSlider.Value = 100.0f;
         gpxZoomSlider.ValueChanged += GpxZoomSliderOnValueChanged;
+        m_gpxZoomSlider = gpxZoomSlider;
+
+        controlImage.MouseDown += ControlImageOnMouseDown;
+        controlImage.MouseMove += ControlImageOnMouseMove;
+        controlImage.MouseWheel += ControlImageOnMouseWheel;
+       
+    }
+
+    private void ControlImageOnMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (e.Delta > 0)
+            m_scalingFactorMapDrawing += 0.03f;
+        else
+            m_scalingFactorMapDrawing -= 0.03f;
+
+        if (m_scalingFactorMapDrawing > 2.0f)
+            m_scalingFactorMapDrawing = 2.0f;
+        if (m_scalingFactorMapDrawing < 0.01f)
+            m_scalingFactorMapDrawing = 0.01f;
+
+        m_gpxZoomSlider.Value = 100.0f * m_scalingFactorMapDrawing;
+        UpdateTransformation();
+    }
+
+    private void ControlImageOnMouseMove(object sender, MouseEventArgs e)
+    {
+        Point position = e.GetPosition((Image)sender);
+        Vector delta = position - m_oldMousePosition;
+        m_oldMousePosition = position;
+        if (e.RightButton != MouseButtonState.Pressed)
+            return;
+
+        delta /= TileSize;
+        delta /= m_scalingFactorMapDrawing;
+        m_renderOffsetPointInTiles += delta;
+        UpdateTransformation();
+    }
+
+    private void ControlImageOnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        // TODO: Click event for left button.
+        // if (e.RightButton == MouseButtonState.Pressed)
+        //    m_oldMousePosition = e.GetPosition((Image)sender);
     }
 
 
@@ -95,7 +156,9 @@ public class GpxVisualizer
         if (!m_gpxSet)
             return;
 
-        m_scalingFactorMapDrawing =  (float)((Slider)sender).Value / 100.0f;
+        m_scalingFactorMapDrawing =  (float)(m_gpxZoomSlider.Value / 100.0f);
+        if (m_scalingFactorMapDrawing < 0.01f)
+            m_scalingFactorMapDrawing = 0.01f;
         UpdateTransformation();
     }
 
@@ -106,7 +169,15 @@ public class GpxVisualizer
     /// </summary>
     private void UpdateTransformation()
     {
-        m_baseGroup.Transform = new ScaleTransform(m_scalingFactorMapDrawing, m_scalingFactorMapDrawing);
+        Size scaledSize =  new Size(m_gadgetSize.Width / m_scalingFactorMapDrawing, m_gadgetSize.Height / m_scalingFactorMapDrawing);
+
+        Vector transformedOrigin = (m_originTileSystem - m_renderOffsetPointInTiles) * TileSize;
+
+        Point offsetPoint = new Point(transformedOrigin.X - scaledSize.Width * 0.5,
+            transformedOrigin.Y - scaledSize.Height * 0.5);
+        Rect clippingArea = new Rect(offsetPoint, scaledSize);
+        m_baseGroup.ClipGeometry = new RectangleGeometry(clippingArea);
+        m_baseGroup.Transform = new ScaleTransform(m_scalingFactorMapDrawing, m_scalingFactorMapDrawing, transformedOrigin.X, transformedOrigin.Y);
     }
 
     /// <summary>
@@ -132,16 +203,28 @@ public class GpxVisualizer
     {
         var boundary = m_gpxRepresentation.BoundingRectangle;
 
-        var minPosition = GetInTileCoordinates(boundary.maxLatitude, boundary.minLongitude);
-        var maxPosition = GetInTileCoordinates(boundary.minLatitude, boundary.maxLongitude);
+        Vector minPosition = GetInTileCoordinates(boundary.maxLatitude, boundary.minLongitude);
+        Vector maxPosition = GetInTileCoordinates(boundary.minLatitude, boundary.maxLongitude);
 
-       
-        m_originTileSystem = new Point(0.5f * (minPosition.x + maxPosition.x) * TileSize, 0.5f * (minPosition.y + maxPosition.y) * TileSize);
+
+        m_originTileSystem = (minPosition + maxPosition) * 0.5;
 
         // Now we create a drawing group for all the tiles.
         DrawingGroup drawingGroup = new DrawingGroup();
-        for (int x = (int)minPosition.x; x <= (int)maxPosition.x; ++x)
-        for (int y = (int)minPosition.y; y <= (int)maxPosition.y; ++y)
+
+        // First we a big grey area to make sure that the drawing is always centred after clipping.
+        const double bigValue = 1e+10;
+        Rect bigRect = new Rect(new Point(-bigValue, -bigValue), new Point(bigValue, bigValue));
+        GeometryDrawing bgRect = new GeometryDrawing()
+        {
+            Brush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
+            Geometry = new RectangleGeometry(bigRect)
+        };
+        drawingGroup.Children.Add(bgRect);
+
+        // Now the tiles.
+        for (int x = (int)minPosition.X; x <= (int)maxPosition.X; ++x)
+        for (int y = (int)minPosition.Y; y <= (int)maxPosition.Y; ++y)
         {
             ImageDrawing subImage = new ImageDrawing(new BitmapImage(GetImageUri(x, y)),
                 new Rect(new Point(x * TileSize, y * TileSize), new Size(TileSize, TileSize)));
@@ -151,15 +234,14 @@ public class GpxVisualizer
 
         // Build the path with the lines from gps.
         GeometryDrawing geoDrawing = new GeometryDrawing();
-        geoDrawing.Pen = new Pen(new SolidColorBrush(Color.FromRgb(255, 80, 80)), 20.0);
+        geoDrawing.Pen = new Pen(new SolidColorBrush(Color.FromRgb(255, 80, 80)), 2.0);
         PathGeometry pathGeo = new PathGeometry();
         PathFigure pathFigure = new PathFigure();
 
         bool firstElement = true;
         foreach ((float latitude, float longitude) point in m_gpxRepresentation.CoordinatePoints)
         {
-            var tilePosition = GetInTileCoordinates(point.latitude, point.longitude);
-            Point drawingPoint = new Point(tilePosition.x * TileSize, tilePosition.y * TileSize);
+            Point drawingPoint = (Point)(GetInTileCoordinates(point.latitude, point.longitude) * TileSize);
             if (firstElement)
                 pathFigure.StartPoint = drawingPoint;
             else
@@ -171,6 +253,8 @@ public class GpxVisualizer
         pathGeo.Figures.Add(pathFigure);
         geoDrawing.Geometry = pathGeo;
         drawingGroup.Children.Add(geoDrawing);
+
+      
 
         return drawingGroup;
     }
@@ -184,7 +268,7 @@ public class GpxVisualizer
     private Uri GetImageUri(int xTile, int yTile)
     {
         // HACK HACK HACK
-        return new Uri(@"D:\HoloLensTest\VideoGeoTagger\Dummy.png");
+        // return new Uri(@"D:\HoloLensTest\VideoGeoTagger\Dummy.png");
 
         return new Uri($"{TileProvider}/{ScalingLevel}/{xTile}/{yTile}.png");
     }
@@ -199,7 +283,7 @@ public class GpxVisualizer
     /// <param name="latitude">The latitude of the position to get.</param>
     /// <param name="longitude">The longitude of the position to get.</param>
     /// <returns>Tile coordinates in Mercator system.</returns>
-    private (float x, float y) GetInTileCoordinates(float latitude, float longitude)
+    private Vector GetInTileCoordinates(float latitude, float longitude)
     {
         float x = (longitude + 180.0f) / 360.0f * m_scalingFactorTiles;
 
@@ -208,7 +292,7 @@ public class GpxVisualizer
                    (MathF.Log(MathF.Tan(angleCorrect) + 1.0f / (MathF.Cos(angleCorrect))) / MathF.PI)) *
                   m_scalingFactorTiles * 0.5f;
 
-        return (x, y);
+        return new Vector(x,y);
     }
 
 
