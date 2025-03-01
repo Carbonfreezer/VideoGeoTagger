@@ -110,13 +110,29 @@ public class GpxRepresentation
     /// <returns>Readily computed Xml element.</returns>
     public XmlElement GetTrackingPointElement(XmlDocument doc, TimeSpan gpxTime, TimeSpan videoTime)
     {
-        // First we need to get the entry.
-        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
-            Math.Abs(logEntry.m_timeFromBeginning.TotalSeconds - gpxTime.TotalSeconds));
-        Debug.Assert(bestEntry != null, "No Entry found.");
+        // We get the first entry where we are in front of.
+        int foundIndex = m_originalNodes.FindIndex(log => log.m_timeFromBeginning > gpxTime);
+        if (foundIndex == -1)
+        {
+            // In this case we take the last element.
+            return m_originalNodes[^1].m_coordinates.GetTrackingElement(doc, m_virtualStartTime + videoTime );
+        }
+       
+        if (foundIndex == 0)
+        {
+            // In this case we are already slightly ahead.
+            return m_originalNodes[0].m_coordinates.GetTrackingElement(doc, m_virtualStartTime + videoTime);
+        }
 
-        DateTime finalTime = m_virtualStartTime + videoTime;
-        return bestEntry.GetTrackingElement(doc, finalTime);
+        // In this case we have to interpolate.
+        TimeSpan baseTime = m_originalNodes[foundIndex - 1].m_timeFromBeginning;
+        TimeSpan delta = m_originalNodes[foundIndex].m_timeFromBeginning - baseTime;
+
+        double alpha = (gpxTime - baseTime) / delta;
+        GpxCoordinates interpolatedCoords = m_originalNodes[foundIndex - 1].m_coordinates
+            .GetInterpolatedValue(m_originalNodes[foundIndex].m_coordinates, alpha);
+
+        return interpolatedCoords.GetTrackingElement(doc, m_virtualStartTime + videoTime);
     }
 
 
