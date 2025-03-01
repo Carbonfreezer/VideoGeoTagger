@@ -10,20 +10,11 @@ namespace VideoGeoTagger.GpxData;
 /// </summary>
 public class GpxLogEntry
 {
-    /// <summary>
-    ///     The latitude of the log.
-    /// </summary>
-    public float m_latitude;
 
     /// <summary>
-    ///     The longitude of the log.
+    /// The position we are in.
     /// </summary>
-    public float m_longitude;
-
-    /// <summary>
-    /// The measurement height if available.
-    /// </summary>
-    public float m_height;
+    public  GpxCoordinates m_coordinates = new GpxCoordinates();
 
     /// <summary>
     ///     The time stamp, that was included in the log.
@@ -46,17 +37,17 @@ public class GpxLogEntry
     {
        
         XmlElement returnElement = doc.CreateElement("trkpt", SegmentAdministrator.NameSpace);
-        returnElement.SetAttribute("lat",  m_latitude.ToString(CultureInfo.InvariantCulture));
-        returnElement.SetAttribute("lon", m_longitude.ToString(CultureInfo.InvariantCulture));
+        returnElement.SetAttribute("lat", m_coordinates.m_latitude.ToString(CultureInfo.InvariantCulture));
+        returnElement.SetAttribute("lon", m_coordinates.m_longitude.ToString(CultureInfo.InvariantCulture));
 
         XmlElement timeNode = doc.CreateElement("time", SegmentAdministrator.NameSpace);
         timeNode.InnerText = givenTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
         returnElement.AppendChild(timeNode);
 
-        if (m_height > -5000.0f)
+        if (m_coordinates.m_height > -5000.0f)
         {
             XmlElement elevationNode = doc.CreateElement("ele", SegmentAdministrator.NameSpace);
-            elevationNode.InnerText = m_height.ToString(CultureInfo.InvariantCulture);
+            elevationNode.InnerText = m_coordinates.m_height.ToString(CultureInfo.InvariantCulture);
             returnElement.AppendChild(elevationNode);
         }
 

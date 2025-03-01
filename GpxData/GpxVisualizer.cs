@@ -169,8 +169,8 @@ public class GpxVisualizer
     /// <param name="gpxTime">The time in gpx time we want to set the marker for.</param>
     public void SetMarker(TimeSpan gpxTime)
     {
-        var coord = m_gpxRepresentation.GetPositionForTimeStamp(gpxTime);
-        Vector tileCoords = GetInTileCoordinates(coord.latitude, coord.longitude);
+        GpxCoordinates coord = m_gpxRepresentation.GetPositionForTimeStamp(gpxTime);
+        Vector tileCoords = GetInTileCoordinates(coord);
         tileCoords *= TileSize;
 
         m_markerDrawing.Transform = new TranslateTransform(tileCoords.X, tileCoords.Y);
@@ -236,8 +236,8 @@ public class GpxVisualizer
         mousePosition += (Vector)m_drawingOffsetPoint;
         Vector scaledMousePosition = mousePosition / TileSize;
 
-        var coords = GetGpxCoords(scaledMousePosition);
-        OnMapTimeSelected?.Invoke(m_gpxRepresentation.GetClosestTime(coords.latitude, coords.longitude));
+        GpxCoordinates coords = GetGpxCoords(scaledMousePosition);
+        OnMapTimeSelected?.Invoke(m_gpxRepresentation.GetClosestTime(coords));
     }
 
 
@@ -300,8 +300,8 @@ public class GpxVisualizer
     {
         var boundary = m_gpxRepresentation.BoundingRectangle;
 
-        Vector minPosition = GetInTileCoordinates(boundary.maxLatitude, boundary.minLongitude);
-        Vector maxPosition = GetInTileCoordinates(boundary.minLatitude, boundary.maxLongitude);
+        Vector minPosition = GetInTileCoordinates(new GpxCoordinates(){m_latitude = boundary.maxLatitude, m_longitude = boundary.minLongitude }  );
+        Vector maxPosition = GetInTileCoordinates(new GpxCoordinates() { m_latitude = boundary.minLatitude, m_longitude = boundary.maxLongitude });
 
 
         m_originTileSystem = (minPosition + maxPosition) * 0.5;
@@ -336,9 +336,9 @@ public class GpxVisualizer
         PathFigure pathFigure = new PathFigure();
 
         bool firstElement = true;
-        foreach ((float latitude, float longitude) point in m_gpxRepresentation.CoordinatePoints)
+        foreach (GpxCoordinates point in m_gpxRepresentation.CoordinatePoints)
         {
-            Point drawingPoint = (Point)(GetInTileCoordinates(point.latitude, point.longitude) * TileSize);
+            Point drawingPoint = (Point)(GetInTileCoordinates(point) * TileSize);
             if (firstElement)
                 pathFigure.StartPoint = drawingPoint;
             else
@@ -373,17 +373,15 @@ public class GpxVisualizer
     ///     the part of the tile.
     ///     x coordinate is from left to right and y coordinate from top to bottom.
     /// </summary>
-    /// <param name="latitude">The latitude of the position to get.</param>
-    /// <param name="longitude">The longitude of the position to get.</param>
     /// <returns>Tile coordinates in Mercator system.</returns>
-    private Vector GetInTileCoordinates(float latitude, float longitude)
+    private Vector GetInTileCoordinates(GpxCoordinates position)
     {
-        float x = (longitude + 180.0f) / 360.0f * m_scalingFactorTiles;
+        double x = (position.m_longitude + 180.0) / 360.0 * m_scalingFactorTiles;
 
-        float angleCorrect = latitude * MathF.PI / 180.0f;
-        float y = (1.0f -
-                   (MathF.Log(MathF.Tan(angleCorrect) + 1.0f / (MathF.Cos(angleCorrect))) / MathF.PI)) *
-                  m_scalingFactorTiles * 0.5f;
+        double angleCorrect = position.m_latitude * MathF.PI / 180.0f;
+        double y = (1.0 -
+                    (Math.Log(Math.Tan(angleCorrect) + 1.0 / (Math.Cos(angleCorrect))) / Math.PI)) *
+                   m_scalingFactorTiles * 0.5;
 
         return new Vector(x, y);
     }
@@ -395,14 +393,16 @@ public class GpxVisualizer
     /// <param name="tileCoords">The coordinates in tiles.</param>
     /// <returns>latitude longitude pair.</returns>
     /// <seealso cref="GetInTileCoordinates" />
-    private (float latitude, float longitude) GetGpxCoords(Vector tileCoords)
+    private GpxCoordinates GetGpxCoords(Vector tileCoords)
     {
-        float longitude = ((float)tileCoords.X) / m_scalingFactorTiles * 360.0f - 180.0f;
-        float latitude =
-            MathF.Atan(MathF.Sinh(MathF.PI - ((float)tileCoords.Y) / m_scalingFactorTiles * 2.0f * MathF.PI)) * 180.0f /
-            MathF.PI;
+        GpxCoordinates result = new GpxCoordinates
+        {
+            m_longitude = (tileCoords.X) / m_scalingFactorTiles * 360.0 - 180.0,
+            m_latitude = Math.Atan(Math.Sinh(Math.PI - ((float)tileCoords.Y) / m_scalingFactorTiles * 2.0 * Math.PI)) * 180.0 /
+                         Math.PI
+        };
 
-        return (latitude, longitude);
+        return result;
     }
 
     #endregion

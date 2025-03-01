@@ -23,14 +23,14 @@ public class GpxRepresentation
     /// <summary>
     ///     Asks for the bounding rectangle of the course.
     /// </summary>
-    public (float minLatitude, float maxLatitude, float minLongitude, float maxLongitude) BoundingRectangle
+    public (double minLatitude, double maxLatitude, double minLongitude, double maxLongitude) BoundingRectangle
     {
         get
         {
-            float minLatitude = m_originalNodes.Min(node => node.m_latitude);
-            float maxLatitude = m_originalNodes.Max(node => node.m_latitude);
-            float minLongitude = m_originalNodes.Min(node => node.m_longitude);
-            float maxLongitude = m_originalNodes.Max(node => node.m_longitude);
+            double minLatitude = m_originalNodes.Min(node => node.m_coordinates.m_latitude);
+            double maxLatitude = m_originalNodes.Max(node => node.m_coordinates.m_latitude);
+            double minLongitude = m_originalNodes.Min(node => node.m_coordinates.m_longitude);
+            double maxLongitude = m_originalNodes.Max(node => node.m_coordinates.m_longitude);
 
             return (minLatitude, maxLatitude, minLongitude, maxLongitude);
         }
@@ -40,11 +40,8 @@ public class GpxRepresentation
     /// <summary>
     ///     Gets an enumerable for latitude an longitude points for painting.
     /// </summary>
-    public IEnumerable<(float latitude, float longitude)> CoordinatePoints
-    {
-        get { return m_originalNodes.Select(entry => (entry.m_latitude, entry.m_longitude)); }
-    }
-
+    public IEnumerable<GpxCoordinates> CoordinatePoints => m_originalNodes.Select(entry => entry.m_coordinates);
+   
     /// <summary>
     ///     Loads the data from the file and builds the internal list.
     /// </summary>
@@ -87,9 +84,13 @@ public class GpxRepresentation
 
             GpxLogEntry newLog = new GpxLogEntry
             {
-                m_latitude = latitude,
-                m_longitude = longitude,
-                m_height = height,
+                m_coordinates = new GpxCoordinates()
+                {
+                    m_longitude = longitude,
+                    m_latitude = latitude,
+                    m_height = height
+                },
+
                 m_originalTimeStamp = timeStamp
             };
 
@@ -130,47 +131,48 @@ public class GpxRepresentation
     /// <param name="angleA">First angle.</param>
     /// <param name="angleB">Second angle.</param>
     /// <returns>Angular distance.</returns>
-    private float GetLongitudeDistance(float angleA, float angleB)
+    private double GetLongitudeDistance(double angleA, double angleB)
     {
-        float diff = angleA - angleB;
+        double diff = angleA - angleB;
 
-        if (diff > 180.0f)
-            diff = 360.0f - diff;
+        if (diff > 180.0)
+            diff = 360.0 - diff;
 
-        if (diff < -180.0f)
-            diff = 380.0f + diff;
+        if (diff < -180.0)
+            diff = 380.0 + diff;
 
         return diff;
     }
 
 
+
+    // TODO: Has to change in further processing.
+
     /// <summary>
     ///     Asks for a given latitude and longitude the closest point we have selected. Returns gpx time.
     /// </summary>
-    /// <param name="latitude">Probing latitude.</param>
-    /// <param name="longitude">Probing longitude.</param>
     /// <returns>Best time, when the position has been reached.</returns>
-    public TimeSpan GetClosestTime(float latitude, float longitude)
+    public TimeSpan GetClosestTime(GpxCoordinates coordinates)
     {
         GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
-            MathF.Pow(latitude - logEntry.m_latitude, 2.0f) +
-            MathF.Pow(GetLongitudeDistance(longitude, logEntry.m_longitude), 2.0f));
+            Math.Pow(coordinates.m_latitude - logEntry.m_coordinates.m_latitude, 2.0) +
+            Math.Pow(GetLongitudeDistance(coordinates.m_longitude, logEntry.m_coordinates.m_longitude), 2.0));
 
         Debug.Assert(bestEntry != null, "No Entry found.");
         return bestEntry.m_timeFromBeginning;
     }
 
     /// <summary>
-    ///     Samples the log for a given time and returns the position.
+    ///     Samples the log for a given time and returns the position closest  time.
     /// </summary>
     /// <param name="fromStart">Time from start on where we want to sample.</param>
     /// <returns>Position, that was obtained from the time stamp.</returns>
-    public (float latitude, float longitude) GetPositionForTimeStamp(TimeSpan fromStart)
+    public GpxCoordinates GetPositionForTimeStamp(TimeSpan fromStart)
     {
         GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
             Math.Abs(logEntry.m_timeFromBeginning.TotalSeconds - fromStart.TotalSeconds));
         Debug.Assert(bestEntry != null, "No Entry found.");
 
-        return (bestEntry.m_latitude, bestEntry.m_longitude);
+        return bestEntry.m_coordinates;
     }
 }

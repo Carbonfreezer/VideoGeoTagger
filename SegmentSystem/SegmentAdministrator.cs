@@ -101,7 +101,7 @@ public class SegmentAdministrator
     /// </summary>
     private void SaveButtonOnClick(object sender, RoutedEventArgs e)
     {
-        var dialog = new SaveFileDialog
+        SaveFileDialog dialog = new SaveFileDialog
         {
             FileName = "Processed",
             DefaultExt = ".gpx", // Default file extension
