@@ -1,7 +1,7 @@
 # VideoGeoTagger
-Program to geo-tag a video with a Gpx file that has not been shot continuously.
+Program to geo-tag a video with a Gpx file that has not been shot continuously. The program Needs an internet connection for the Maps to run.
 
-##Screenshot
+## Screenshot
 ![Screenshot of Video Geo Tagger](Screenshot.png)
 
 
