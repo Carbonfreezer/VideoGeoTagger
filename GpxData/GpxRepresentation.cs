@@ -28,10 +28,10 @@ public class GpxRepresentation
     {
         get
         {
-            double minLatitude = m_originalNodes.Min(node => node.m_coordinates.m_latitude);
-            double maxLatitude = m_originalNodes.Max(node => node.m_coordinates.m_latitude);
-            double minLongitude = m_originalNodes.Min(node => node.m_coordinates.m_longitude);
-            double maxLongitude = m_originalNodes.Max(node => node.m_coordinates.m_longitude);
+            double minLatitude = m_originalNodes.Min(node => node.m_coordinates.Latitude);
+            double maxLatitude = m_originalNodes.Max(node => node.m_coordinates.Latitude);
+            double minLongitude = m_originalNodes.Min(node => node.m_coordinates.Longitude);
+            double maxLongitude = m_originalNodes.Max(node => node.m_coordinates.Longitude);
 
             return (minLatitude, maxLatitude, minLongitude, maxLongitude);
         }
