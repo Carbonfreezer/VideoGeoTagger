@@ -13,6 +13,11 @@ public class VideoSegment
     /// </summary>
     private const float BlackoutTime = 2.5f;
 
+    /// <summary>
+    ///     The blackout time we want to have around cuts.
+    /// </summary>
+    private readonly TimeSpan m_blackoutTimeSegment;
+
 
     /// <summary>
     ///     The endpoint in video time.
@@ -39,11 +44,6 @@ public class VideoSegment
     /// </summary>
     public bool m_isLast;
 
-    /// <summary>
-    /// The blackout time we want to have around cuts. 
-    /// </summary>
-    private readonly TimeSpan m_blackoutTimeSegment;
-
 
     /// <summary>
     ///     Creates a video segment from the end and the start point.
@@ -64,9 +64,30 @@ public class VideoSegment
 
 
     /// <summary>
-    /// Contains the synchronization point of the segment in video time.
+    ///     Contains the synchronization point of the segment in video time.
     /// </summary>
     public TimeSpan SyncVideoTime { get; private set; }
+
+
+    /// <summary>
+    ///     Asks for the data that is relevant for saving.
+    /// </summary>
+    public VideoSegmentInfo SaveInfo => new VideoSegmentInfo
+    {
+        m_isSynchronized = IsSynchronized, m_correctionOffset = m_filmToGpxAdder, m_synchronizationTime = SyncVideoTime
+    };
+
+
+    /// <summary>
+    ///     Sets the information, that is used for loading.
+    /// </summary>
+    /// <param name="savedInfo">The saved information we want to restore.</param>
+    public void SetLoadingInfo(VideoSegmentInfo savedInfo)
+    {
+        IsSynchronized = savedInfo.m_isSynchronized;
+        m_filmToGpxAdder = savedInfo.m_correctionOffset;
+        SyncVideoTime = savedInfo.m_synchronizationTime;
+    }
 
 
     /// <summary>

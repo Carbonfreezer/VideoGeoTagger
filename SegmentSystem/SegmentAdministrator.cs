@@ -97,6 +97,25 @@ public class SegmentAdministrator
 
 
     /// <summary>
+    /// Gets the save information from the segment administrator.
+    /// </summary>
+    public List<VideoSegmentInfo> SafeInfo => m_listOfSegments.Select(seg => seg.SaveInfo).ToList();
+
+
+    /// <summary>
+    /// Sets the list with the segment information from a project load.
+    /// </summary>
+    /// <param name="infoList">The list with the segment informations.</param>
+    public void SetLoadingInfo(List<VideoSegmentInfo> infoList)
+    {
+        Debug.Assert(infoList.Count == m_listOfSegments.Count, "The set list should be as long as the segment list.");
+        for(int i = 0; i < m_listOfSegments.Count; ++i)
+            m_listOfSegments[i].SetLoadingInfo(infoList[i]);
+
+        PopulateGui();
+    }
+
+    /// <summary>
     ///     Callback to save the processed GPX file.
     /// </summary>
     private void SaveButtonOnClick(object sender, RoutedEventArgs e)
@@ -179,8 +198,7 @@ public class SegmentAdministrator
             m_synchronizeBox.IsChecked = false;
             m_segmentListBox.SelectedIndex = selectedPosition;
 
-            if (m_listOfSegments.All(seg => seg.IsSynchronized))
-                m_saveButton.IsEnabled = true;
+            m_saveButton.IsEnabled = m_listOfSegments.All(seg => seg.IsSynchronized);
         }
         else
         {
@@ -217,15 +235,12 @@ public class SegmentAdministrator
     {
         m_listOfSegments.Clear();
         TimeSpan firstPoint = TimeSpan.Zero;
-        ;
         foreach (TimeSpan split in splittingPoints)
         {
             m_listOfSegments.Add(new VideoSegment(firstPoint, split));
             firstPoint = split;
         }
-
         m_listOfSegments.Add(new VideoSegment(firstPoint, m_totalVideoTime));
-
         PopulateGui();
     }
 
@@ -264,10 +279,12 @@ public class SegmentAdministrator
     {
         m_segmentListBox.Items.Clear();
         for (int i = 0; i < m_listOfSegments.Count; ++i)
-            m_segmentListBox.Items.Add($"Segment {i + 1:D2}");
+            m_segmentListBox.Items.Add(m_listOfSegments[i].IsSynchronized
+                ? $"Segment {i + 1:D2} - Synced"
+                : $"Segment {i + 1:D2}");
 
         UpdateMarker();
-        m_saveButton.IsEnabled = false;
+        m_saveButton.IsEnabled = m_listOfSegments.All(seg => seg.IsSynchronized);
         m_segmentListBox.SelectedIndex = 0;
     }
 

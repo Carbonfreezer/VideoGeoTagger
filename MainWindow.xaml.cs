@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Windows;
+using System.Xml.Serialization;
 using Microsoft.Win32;
 using VideoGeoTagger.GpxData;
 using VideoGeoTagger.SegmentSystem;
@@ -35,6 +38,22 @@ public partial class MainWindow : Window
     /// </summary>
     private readonly VideoAdministrator m_videoAdmin;
 
+
+    /// <summary>
+    /// The plain gpx filename used for saving.
+    /// </summary>
+    private string m_plainGpxFilename = "";
+
+    /// <summary>
+    /// The plain video filename used for saving.
+    /// </summary>
+    private string m_plainVideoFilename = "";
+
+    /// <summary>
+    /// The save struct we have from loading the data.
+    /// </summary>
+    private ProjectSaveStruct? m_saveStruct;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -64,10 +83,20 @@ public partial class MainWindow : Window
 
         // Process open file dialog box results
         if (result == true)
-        {
-            m_videoAdmin.LoadVideo(dialog.FileName);
-            m_splitting.ResetData();
-        }
+            LoadVideo(dialog.FileName);
+    }
+
+    /// <summary>
+    /// Gets called when we want to load a video.
+    /// </summary>
+    /// <param name="fileName">The filename we want to load.</param>
+    private void LoadVideo(string fileName)
+    {
+        m_videoAdmin.LoadVideo(fileName);
+        m_splitting.ResetData();
+        m_plainVideoFilename = Path.GetFileName(fileName);
+        if (m_plainGpxFilename != "")
+            SaveProjectButton.IsEnabled = true;
     }
 
     /// <summary>
@@ -86,12 +115,112 @@ public partial class MainWindow : Window
 
         // Process open file dialog box results
         if (result == true)
+            LoadGpx(dialog.FileName);
+    }
+
+
+
+    /// <summary>
+    /// Loads the gpx data from the indicated file.
+    /// </summary>
+    /// <param name="filename">The name of the file to load gpx from.</param>
+    private void LoadGpx(string filename)
+    {
+        m_gpxRepresentation.LoadFromFile(filename);
+        m_gpxVisualizer.UpdateRepresentation();
+        m_segmentAdministrator.Flush();
+        m_plainGpxFilename = Path.GetFileName(filename);
+        if (m_plainVideoFilename != "")
+            SaveProjectButton.IsEnabled = true;
+    }
+
+
+    /// <summary>
+    /// Gets called when the load button got pressed.
+    /// </summary>
+    private void OnLoadProject(object sender, RoutedEventArgs e)
+    {
+        OpenFileDialog dialog = new OpenFileDialog
         {
-            // Open document
-            string filename = dialog.FileName;
-            m_gpxRepresentation.LoadFromFile(filename);
-            m_gpxVisualizer.UpdateRepresentation();
-            m_segmentAdministrator.Flush();
-        }
+            DefaultExt = ".gtp", // Default file extension
+            Filter = "Video Geo Tag Project (.gtp)|*.gtp" // Filter files by extension
+        };
+
+        // Show open file dialog box
+        bool? result = dialog.ShowDialog();
+
+        // Process open file dialog box results
+        if (result != true)
+            return;
+
+        string fileName = dialog.FileName;
+        XmlSerializer serial = new XmlSerializer(typeof(ProjectSaveStruct));
+        using TextReader reader = new StreamReader(fileName);
+        m_saveStruct = (ProjectSaveStruct?) serial.Deserialize(reader);
+        reader.Close();
+
+        if (m_saveStruct == null)
+            return;
+
+
+        // First we deal with loading the files.
+        string? baseName = Path.GetDirectoryName(fileName);
+        Debug.Assert(baseName != null, "Should be a directory.");
+        LoadVideo( Path.Combine(baseName, m_saveStruct.m_videoFilename));
+        LoadGpx(Path.Combine(baseName, m_saveStruct.m_gpxFilename));
+
+        // For the rest we have to wait till the video got finished.
+        m_videoAdmin.OnVideoReadyForTiming += LoadRestOfData;
+       
+       
+    }
+
+    /// <summary>
+    /// Gets invoked after the video is finished.
+    /// </summary>
+    private void LoadRestOfData(TimeSpan _)
+    {
+        m_videoAdmin.OnVideoReadyForTiming -= LoadRestOfData;
+        if (m_saveStruct == null)
+            return;
+        // Now set the rest of the data.
+        m_splitting.SetSplittingPoints(m_saveStruct.m_splittingPoints);
+        m_segmentAdministrator.SetLoadingInfo(m_saveStruct.m_videoSegments);
+        m_saveStruct = null;
+    }
+
+    /// <summary>
+    /// Gets called when the save button got pressed.
+    /// </summary>
+    private void OnSaveProject(object sender, RoutedEventArgs e)
+    {
+        // First prepare the data.
+        ProjectSaveStruct saveStruct = new ProjectSaveStruct();
+        saveStruct.m_gpxFilename = m_plainGpxFilename;
+        saveStruct.m_videoFilename = m_plainVideoFilename;
+        saveStruct.m_splittingPoints = m_splitting.SplittingPoints;
+        saveStruct.m_videoSegments = m_segmentAdministrator.SafeInfo;
+
+        // Create the save dialog.
+        SaveFileDialog dialog = new SaveFileDialog
+        {
+            FileName = "VideoGeoTag",
+            DefaultExt = ".gtp", // Default file extension
+            Filter = "Video Geo Tag Project (.gtp)|*.gtp" // Filter files by extension
+        };
+
+        // Show open file dialog box
+        bool? result = dialog.ShowDialog();
+
+        // Process open file dialog box results
+        if (result != true)
+            return;
+
+        // Now we serialize the data. 
+        XmlSerializer serial = new XmlSerializer(typeof(ProjectSaveStruct));
+        using TextWriter writer = new StreamWriter(dialog.FileName);
+        serial.Serialize(writer, saveStruct);
+        writer.Close();
+
     }
 }

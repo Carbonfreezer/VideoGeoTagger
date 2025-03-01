@@ -8,17 +8,20 @@
         Title="Video Geo Tagger" Height="1200" Width="1600" ResizeMode="NoResize">
     <Canvas>
         <TabControl x:Name="tabControl" Height="1150" Width="420" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <TabItem Header="Data Loading / Saving">
+            <TabItem Header="Loading/Saving">
                 <Canvas>
-                    <Button Canvas.Left="83" Canvas.Top="69"  FontSize="18" Click="OnLoadVideo" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" >Load Video</Button>
-                    <Button Canvas.Left="83" Canvas.Top="131"  FontSize="18" Click="OnLoadGpx" HorizontalAlignment="Left" VerticalAlignment="Center" Width="218" Height="48">Load Gpx</Button>
-                    <Button x:Name="SaveButton" FontSize="18" Canvas.Left="83" Canvas.Top="241"  Width="218" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Top" Height="48">Save modified GPX</Button>
-                    <Label FontSize="18" Canvas.Left="62" Canvas.Top="746" HorizontalAlignment="Left" VerticalAlignment="Top">Program written by Christoph Lürig</Label>
-                    <Label FontSize="18" Canvas.Left="91" Canvas.Top="775" HorizontalAlignment="Center" VerticalAlignment="Center">christoph.luerig@gmail.com</Label>
-                    <Label FontSize="18" Canvas.Left="48" Canvas.Top="855" HorizontalAlignment="Left" VerticalAlignment="Top">Map Data provided by OpenStreetMap</Label>
+                    <Button Canvas.Left="83" Canvas.Top="50"  FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" Click="OnLoadProject" >Load Project</Button>
+                    <Button x:Name="SaveProjectButton" IsEnabled="False" Canvas.Left="83" Canvas.Top="112"  FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" Click="OnSaveProject"  >Save Project</Button>
+
+                    <Button Canvas.Left="83" Canvas.Top="341"  FontSize="18" Click="OnLoadVideo" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" >Load Video</Button>
+                    <Button Canvas.Left="83" Canvas.Top="403"  FontSize="18" Click="OnLoadGpx" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48">Load Gpx</Button>
+                    <Button x:Name="SaveButton" FontSize="18" Canvas.Left="83" Canvas.Top="513"  Width="218" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Top" Height="48">Save modified GPX</Button>
+                    <Label FontSize="18" Canvas.Left="62" Canvas.Top="908" HorizontalAlignment="Center" VerticalAlignment="Top">Program written by Christoph Lürig</Label>
+                    <Label FontSize="18" Canvas.Left="91" Canvas.Top="937" HorizontalAlignment="Center" VerticalAlignment="Top">christoph.luerig@gmail.com</Label>
+                    <Label FontSize="18" Canvas.Left="48" Canvas.Top="1017" HorizontalAlignment="Center" VerticalAlignment="Top">Map Data provided by OpenStreetMap</Label>
                 </Canvas>
             </TabItem>
-            <TabItem Header="Splitting Points">
+            <TabItem Header="Splitting">
                 <Canvas>
                     <ListBox x:Name="SplittingList" Width="400" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single">
 
@@ -27,7 +30,7 @@
                     <Button x:Name="ButtonDeleteSplitting" FontSize="18" Canvas.Left="121" Canvas.Top="919" HorizontalAlignment="Center" VerticalAlignment="Top">Delete Splitting Point</Button>
                 </Canvas>
             </TabItem>
-            <TabItem Header="Segment Synchronization">
+            <TabItem Header="Synchronization">
                 <Canvas>
                     <ListBox x:Name="SegmentList" Width="400" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single" />
                     <CheckBox x:Name="Synchronize" FontSize="10" Canvas.Left="168" Canvas.Top="883" Height="19" Width="78" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
