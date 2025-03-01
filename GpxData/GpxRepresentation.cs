@@ -19,10 +19,6 @@ public class GpxRepresentation
     /// </summary>
     private DateTime m_virtualStartTime;
 
-    /// <summary>
-    ///     Asks for the total length of the gpx track.
-    /// </summary>
-    public TimeSpan TotalLength => m_originalNodes[^1].m_timeFromBeginning;
 
     /// <summary>
     ///     Asks for the bounding rectangle of the course.
@@ -42,7 +38,7 @@ public class GpxRepresentation
 
 
     /// <summary>
-    /// Gets an enumerable for latitude an longitude points for painting.
+    ///     Gets an enumerable for latitude an longitude points for painting.
     /// </summary>
     public IEnumerable<(float latitude, float longitude)> CoordinatePoints
     {
@@ -78,7 +74,7 @@ public class GpxRepresentation
             Debug.Assert(timeNode != null, "No time found");
             string timeText = timeNode.InnerText;
 
-            XmlNodeList nodeList  = point.GetElementsByTagName("ele");
+            XmlNodeList nodeList = point.GetElementsByTagName("ele");
             float height = -10000.0f;
             if (nodeList.Count == 1)
             {
@@ -110,7 +106,7 @@ public class GpxRepresentation
 
 
     /// <summary>
-    /// Gets an element as a tracking point.
+    ///     Gets an element as a tracking point.
     /// </summary>
     /// <param name="doc">The document we use to create xml elements.</param>
     /// <param name="gpxTime">The time we search for in the original gpx data.</param>
@@ -119,16 +115,17 @@ public class GpxRepresentation
     public XmlElement GetTrackingPointElement(XmlDocument doc, TimeSpan gpxTime, TimeSpan videoTime)
     {
         // First we need to get the entry.
-        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry => Math.Abs(logEntry.m_timeFromBeginning.TotalSeconds - gpxTime.TotalSeconds));
+        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
+            Math.Abs(logEntry.m_timeFromBeginning.TotalSeconds - gpxTime.TotalSeconds));
         Debug.Assert(bestEntry != null, "No Entry found.");
-       
+
         DateTime finalTime = m_virtualStartTime + videoTime;
         return bestEntry.GetTrackingElement(doc, finalTime);
     }
 
 
     /// <summary>
-    /// Gets the angular distance on longitude. Takes care of the wrap around. 
+    ///     Gets the angular distance on longitude. Takes care of the wrap around.
     /// </summary>
     /// <param name="angleA">First angle.</param>
     /// <param name="angleB">Second angle.</param>
@@ -148,7 +145,7 @@ public class GpxRepresentation
 
 
     /// <summary>
-    ///     Asks for a given latitude and longitude the closest point we have selected.
+    ///     Asks for a given latitude and longitude the closest point we have selected. Returns gpx time.
     /// </summary>
     /// <param name="latitude">Probing latitude.</param>
     /// <param name="longitude">Probing longitude.</param>
@@ -156,7 +153,8 @@ public class GpxRepresentation
     public TimeSpan GetClosestTime(float latitude, float longitude)
     {
         GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
-            MathF.Pow(latitude - logEntry.m_latitude, 2.0f) + MathF.Pow(GetLongitudeDistance(longitude, logEntry.m_longitude), 2.0f));
+            MathF.Pow(latitude - logEntry.m_latitude, 2.0f) +
+            MathF.Pow(GetLongitudeDistance(longitude, logEntry.m_longitude), 2.0f));
 
         Debug.Assert(bestEntry != null, "No Entry found.");
         return bestEntry.m_timeFromBeginning;
@@ -169,7 +167,8 @@ public class GpxRepresentation
     /// <returns>Position, that was obtained from the time stamp.</returns>
     public (float latitude, float longitude) GetPositionForTimeStamp(TimeSpan fromStart)
     {
-        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry => Math.Abs( logEntry.m_timeFromBeginning.TotalSeconds - fromStart.TotalSeconds));
+        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
+            Math.Abs(logEntry.m_timeFromBeginning.TotalSeconds - fromStart.TotalSeconds));
         Debug.Assert(bestEntry != null, "No Entry found.");
 
         return (bestEntry.m_latitude, bestEntry.m_longitude);

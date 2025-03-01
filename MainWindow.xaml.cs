@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Input;
 using Microsoft.Win32;
 using VideoGeoTagger.GpxData;
 using VideoGeoTagger.SegmentSystem;
@@ -11,12 +10,30 @@ namespace VideoGeoTagger;
 /// </summary>
 public partial class MainWindow : Window
 {
-
-    private readonly VideoAdministrator m_videoAdmin;
-    private readonly SplittingAdministrator m_splitting;
+    /// <summary>
+    ///     Contains the gps track.
+    /// </summary>
     private readonly GpxRepresentation m_gpxRepresentation;
+
+    /// <summary>
+    ///     Visualization module for the gpx track.
+    /// </summary>
     private readonly GpxVisualizer m_gpxVisualizer;
+
+    /// <summary>
+    ///     Administrates the video segments and does the bul of the work.
+    /// </summary>
     private readonly SegmentAdministrator m_segmentAdministrator;
+
+    /// <summary>
+    ///     System administrating the splitting points.
+    /// </summary>
+    private readonly SplittingAdministrator m_splitting;
+
+    /// <summary>
+    ///     Module to load and display videos.
+    /// </summary>
+    private readonly VideoAdministrator m_videoAdmin;
 
     public MainWindow()
     {
@@ -26,16 +43,14 @@ public partial class MainWindow : Window
             new SplittingAdministrator(SplittingList, ButtonCreateSplitting, ButtonDeleteSplitting, m_videoAdmin);
         m_gpxRepresentation = new GpxRepresentation();
         m_gpxVisualizer = new GpxVisualizer(GpxImage, GpxZoomSlider, m_gpxRepresentation);
-        m_segmentAdministrator = new SegmentAdministrator(SegmentList, Synchronize, SaveButton, m_videoAdmin, m_splitting, m_gpxVisualizer, m_gpxRepresentation);
+        m_segmentAdministrator = new SegmentAdministrator(SegmentList, Synchronize, SaveButton, m_videoAdmin,
+            m_splitting, m_gpxVisualizer, m_gpxRepresentation);
     }
 
-    
 
     /// <summary>
     ///     Gets called when we press the load movie button.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void OnLoadVideo(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog
@@ -52,15 +67,12 @@ public partial class MainWindow : Window
         {
             m_videoAdmin.LoadVideo(dialog.FileName);
             m_splitting.ResetData();
-            // TODO: Here we set the movie information.
         }
     }
 
     /// <summary>
     ///     Gets called when we load the gpx information.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void OnLoadGpx(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog
@@ -79,8 +91,7 @@ public partial class MainWindow : Window
             string filename = dialog.FileName;
             m_gpxRepresentation.LoadFromFile(filename);
             m_gpxVisualizer.UpdateRepresentation();
-
-            // TODO: Here we set the movie information.
+            m_segmentAdministrator.Flush();
         }
     }
 }

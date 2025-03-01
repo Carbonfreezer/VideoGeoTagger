@@ -26,6 +26,12 @@ public class VideoAdministrator
     /// </summary>
     private readonly Slider m_slider;
 
+
+    /// <summary>
+    ///     Flags, that we have the slider drag started,.
+    /// </summary>
+    private bool m_dragStarted;
+
     /// <summary>
     ///     Indicates if the media is present.
     /// </summary>
@@ -37,20 +43,14 @@ public class VideoAdministrator
     private MediaPlayer? m_mediaPlayer;
 
     /// <summary>
+    ///     Suspends slider change reaction to avoid recursion.
+    /// </summary>
+    private bool m_suspendSliderReaction;
+
+    /// <summary>
     ///     The total length of the video.
     /// </summary>
     private TimeSpan m_videoLength;
-
-
-    /// <summary>
-    /// Flags, that we have the slider drag started,.
-    /// </summary>
-    private bool m_dragStarted;
-
-    /// <summary>
-    /// Suspends slider change reaction to avoid recursion.
-    /// </summary>
-    private bool m_suspendSliderReaction;
 
     /// <summary>
     ///     Generates the video administrator from the slider and the display canvas.
@@ -64,39 +64,6 @@ public class VideoAdministrator
         m_slider.PreviewMouseUp += SliderLeft;
         m_slider.PreviewMouseDown += SliderStarted;
         m_slider.ValueChanged += SliderOnValueChanged;
-    }
-
-
-    /// <summary>
-    /// Gets called when the user starts manipulating the slider with the mouse.
-    /// </summary>
-    private void SliderStarted(object sender, MouseButtonEventArgs e)
-    {
-        m_dragStarted = true;
-    }
-
-
-    /// <summary>
-    /// Gets called, when the user starts manipulating the slider with the mouse.
-    /// </summary>
-    private void SliderLeft(object sender, MouseButtonEventArgs e)
-    {
-        m_dragStarted = false;
-        ProcessSliderValue();
-    }
-
-
-    /// <summary>
-    /// Gets called on slider change event.
-    /// </summary>
-    private void SliderOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (m_dragStarted)
-            return;
-        if (m_suspendSliderReaction)
-            return;
-
-        ProcessSliderValue();
     }
 
 
@@ -118,6 +85,39 @@ public class VideoAdministrator
         }
     }
 
+
+    /// <summary>
+    ///     Gets called when the user starts manipulating the slider with the mouse.
+    /// </summary>
+    private void SliderStarted(object sender, MouseButtonEventArgs e)
+    {
+        m_dragStarted = true;
+    }
+
+
+    /// <summary>
+    ///     Gets called, when the user starts manipulating the slider with the mouse.
+    /// </summary>
+    private void SliderLeft(object sender, MouseButtonEventArgs e)
+    {
+        m_dragStarted = false;
+        ProcessSliderValue();
+    }
+
+
+    /// <summary>
+    ///     Gets called on slider change event.
+    /// </summary>
+    private void SliderOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (m_dragStarted)
+            return;
+        if (m_suspendSliderReaction)
+            return;
+
+        ProcessSliderValue();
+    }
+
     /// <summary>
     ///     The event that the video position has been changed.
     /// </summary>
@@ -125,10 +125,9 @@ public class VideoAdministrator
 
 
     /// <summary>
-    /// The event that gets called when the video is ready for timing.
+    ///     The event that gets called when the video is ready for timing.
     /// </summary>
     public event InformTiming? OnVideoReadyForTiming;
-
 
 
     /// <summary>

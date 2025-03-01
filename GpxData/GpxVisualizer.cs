@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -13,6 +12,12 @@ namespace VideoGeoTagger.GpxData;
 public class GpxVisualizer
 {
     /// <summary>
+    ///     Delegate for event that gets called, when a map position has been selected.
+    /// </summary>
+    /// <param name="gpxTime">The time point in gpx time we have been closest to</param>
+    public delegate void MapPositionSelected(TimeSpan gpxTime);
+
+    /// <summary>
     ///     The scaling level we use for the geo map tile system.
     /// </summary>
     private const int ScalingLevel = 14; // 15;
@@ -24,12 +29,12 @@ public class GpxVisualizer
 
 
     /// <summary>
-    /// The line size we use for drawing.
+    ///     The line size we use for drawing.
     /// </summary>
     private const double LineSize = 2.0;
 
     /// <summary>
-    /// The size of the cross.
+    ///     The size of the cross.
     /// </summary>
     private const double CrossSize = 5.0;
 
@@ -45,20 +50,35 @@ public class GpxVisualizer
     private readonly DrawingGroup m_baseGroup;
 
     /// <summary>
-    /// The drawing for the marker.
+    ///     The size of the display gadget.
     /// </summary>
-    private readonly DrawingGroup m_markerDrawing;
+    private readonly Size m_gadgetSize;
 
     /// <summary>
     ///     The gpx representation for the track.
     /// </summary>
     private readonly GpxRepresentation m_gpxRepresentation;
 
+    /// <summary>
+    ///     The slider we have.
+    /// </summary>
+    private readonly Slider m_gpxZoomSlider;
 
     /// <summary>
-    ///     The scaling factor that hans on the scaling level for tiles.
+    ///     The drawing for the marker.
+    /// </summary>
+    private readonly DrawingGroup m_markerDrawing;
+
+
+    /// <summary>
+    ///     The scaling factor that has on the scaling level for tiles.
     /// </summary>
     private readonly float m_scalingFactorTiles;
+
+    /// <summary>
+    ///     The drawing offset point corresponds to the upper left corner of the system. Used to interpret mouse clicks.
+    /// </summary>
+    private Point m_drawingOffsetPoint;
 
     /// <summary>
     ///     Indicates, that the gpx data is present.
@@ -66,57 +86,29 @@ public class GpxVisualizer
     private bool m_gpxSet;
 
     /// <summary>
-    /// The size of the display gadget.
+    ///     The old mouse position from previous sample.
     /// </summary>
-    private readonly Size m_gadgetSize;
+    private Point m_oldMousePosition;
 
 
     /// <summary>
-    /// The center of the represented region in tile coordinates.
+    ///     The center of the represented region in tile coordinates.
     /// </summary>
     private Vector m_originTileSystem;
 
     /// <summary>
-    /// The drawing offset point corresponds to the upper left corner of the system. Used to interpret mouse clicks.
+    ///     The render offset point in tile coordinates we use for panning.
     /// </summary>
-    private Point m_drawingOffsetPoint;
+    private Vector m_renderOffsetPointInTiles;
 
-   
 
     /// <summary>
-    /// The scaling factor we have internally for map drawing.
+    ///     The scaling factor we have internally for map drawing.
     /// </summary>
     private float m_scalingFactorMapDrawing;
 
     /// <summary>
-    /// The render offset point in tile coordinates we use for panning.
-    /// </summary>
-    private Vector m_renderOffsetPointInTiles;
-
-    /// <summary>
-    /// The orld mouse position from previous sample.
-    /// </summary>
-    private Point m_oldMousePosition;
-
-    /// <summary>
-    /// The slider we have.
-    /// </summary>
-    private readonly Slider m_gpxZoomSlider;
-
-
-    /// <summary>
-    /// Delegate for event that gets called, when a map position has been selected.
-    /// </summary>
-    /// <param name="gpxTime">The time point in gpx time we have been closest to</param>
-    public delegate void MapPositionSelected(TimeSpan gpxTime);
-
-    /// <summary>
-    /// Gets invoked, when a map position has been selected.
-    /// </summary>
-    public event MapPositionSelected? OnMapTimeSelected;
-
-    /// <summary>
-    /// Generates the gpx visualization module, that does all the internal handling.
+    ///     Generates the gpx visualization module, that does all the internal handling.
     /// </summary>
     /// <param name="controlImage">The image control we draw the map, path and marker in.</param>
     /// <param name="gpxZoomSlider">The slider we use for zooming.</param>
@@ -138,25 +130,28 @@ public class GpxVisualizer
         controlImage.MouseDown += ControlImageOnMouseDown;
         controlImage.MouseMove += ControlImageOnMouseMove;
         controlImage.MouseWheel += ControlImageOnMouseWheel;
-       
     }
+
+    /// <summary>
+    ///     Gets invoked, when a map position has been selected.
+    /// </summary>
+    public event MapPositionSelected? OnMapTimeSelected;
 
 
     /// <summary>
-    /// Generates the marker for drawing.
+    ///     Generates the marker for drawing.
     /// </summary>
     /// <returns>Drawing Group for the marker.</returns>
     private DrawingGroup GenerateMarker()
     {
         DrawingGroup result = new DrawingGroup();
 
-
         Pen crossPenn = new Pen(new SolidColorBrush(Color.FromRgb(80, 80, 255)), LineSize);
-        for (int yDir = -1; yDir <= 1; yDir+= 2)
+        for (int yDir = -1; yDir <= 1; yDir += 2)
         {
             LineGeometry geo = new LineGeometry(new Point(-CrossSize, -CrossSize * yDir),
-                new Point(CrossSize , CrossSize  * yDir));
-            GeometryDrawing geoDrawing = new GeometryDrawing()
+                new Point(CrossSize, CrossSize * yDir));
+            GeometryDrawing geoDrawing = new GeometryDrawing
             {
                 Geometry = geo,
                 Pen = crossPenn
@@ -169,7 +164,7 @@ public class GpxVisualizer
 
 
     /// <summary>
-    /// Sets the marker at an indicated position.
+    ///     Sets the marker at an indicated position.
     /// </summary>
     /// <param name="gpxTime">The time in gpx time we want to set the marker for.</param>
     public void SetMarker(TimeSpan gpxTime)
@@ -183,7 +178,7 @@ public class GpxVisualizer
 
 
     /// <summary>
-    /// Disables the marker.
+    ///     Disables the marker.
     /// </summary>
     public void DisableMarker()
     {
@@ -192,7 +187,7 @@ public class GpxVisualizer
 
 
     /// <summary>
-    /// The mouse wheel controls the zoom.
+    ///     The mouse wheel controls the zoom.
     /// </summary>
     private void ControlImageOnMouseWheel(object sender, MouseWheelEventArgs e)
     {
@@ -212,7 +207,7 @@ public class GpxVisualizer
 
 
     /// <summary>
-    /// On right mouse button we pan.
+    ///     On right mouse button we pan.
     /// </summary>
     private void ControlImageOnMouseMove(object sender, MouseEventArgs e)
     {
@@ -229,7 +224,7 @@ public class GpxVisualizer
     }
 
     /// <summary>
-    /// Mouse down generates latitude and longitude positions.
+    ///     Mouse down generates latitude and longitude positions.
     /// </summary>
     private void ControlImageOnMouseDown(object sender, MouseButtonEventArgs e)
     {
@@ -247,27 +242,27 @@ public class GpxVisualizer
 
 
     /// <summary>
-    /// Gets called, when the zoom slider has been moved.
+    ///     Gets called, when the zoom slider has been moved.
     /// </summary>
     private void GpxZoomSliderOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (!m_gpxSet)
             return;
 
-        m_scalingFactorMapDrawing =  (float)(m_gpxZoomSlider.Value / 100.0f);
+        m_scalingFactorMapDrawing = (float)(m_gpxZoomSlider.Value / 100.0f);
         if (m_scalingFactorMapDrawing < 0.01f)
             m_scalingFactorMapDrawing = 0.01f;
         UpdateTransformation();
     }
 
 
- 
     /// <summary>
-    /// Updates the transformation.
+    ///     Updates the transformation to display the correct section of the image.
     /// </summary>
     private void UpdateTransformation()
     {
-        Size scaledSize =  new Size(m_gadgetSize.Width / m_scalingFactorMapDrawing, m_gadgetSize.Height / m_scalingFactorMapDrawing);
+        Size scaledSize = new Size(m_gadgetSize.Width / m_scalingFactorMapDrawing,
+            m_gadgetSize.Height / m_scalingFactorMapDrawing);
 
         Vector transformedOrigin = (m_originTileSystem - m_renderOffsetPointInTiles) * TileSize;
 
@@ -275,11 +270,13 @@ public class GpxVisualizer
             transformedOrigin.Y - scaledSize.Height * 0.5);
         Rect clippingArea = new Rect(m_drawingOffsetPoint, scaledSize);
         m_baseGroup.ClipGeometry = new RectangleGeometry(clippingArea);
-        m_baseGroup.Transform = new ScaleTransform(m_scalingFactorMapDrawing, m_scalingFactorMapDrawing, transformedOrigin.X, transformedOrigin.Y);
+        m_baseGroup.Transform = new ScaleTransform(m_scalingFactorMapDrawing, m_scalingFactorMapDrawing,
+            transformedOrigin.X, transformedOrigin.Y);
     }
 
     /// <summary>
     ///     Sets the gpx representation we need and prepares the visualization for the map system.
+    ///     This is called, when a new gpx file has been set.
     /// </summary>
     public void UpdateRepresentation()
     {
@@ -315,7 +312,7 @@ public class GpxVisualizer
         // First we a big grey area to make sure that the drawing is always centred after clipping.
         const double bigValue = 1e+10;
         Rect bigRect = new Rect(new Point(-bigValue, -bigValue), new Point(bigValue, bigValue));
-        GeometryDrawing bgRect = new GeometryDrawing()
+        GeometryDrawing bgRect = new GeometryDrawing
         {
             Brush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
             Geometry = new RectangleGeometry(bigRect)
@@ -354,7 +351,6 @@ public class GpxVisualizer
         geoDrawing.Geometry = pathGeo;
         drawingGroup.Children.Add(geoDrawing);
 
-      
 
         return drawingGroup;
     }
@@ -367,9 +363,6 @@ public class GpxVisualizer
     /// <returns>Uri for the tile image.</returns>
     private Uri GetImageUri(int xTile, int yTile)
     {
-        // HACK HACK HACK
-        // return new Uri(@"D:\HoloLensTest\VideoGeoTagger\Dummy.png");
-
         return new Uri($"{TileProvider}/{ScalingLevel}/{xTile}/{yTile}.png");
     }
 
@@ -392,7 +385,7 @@ public class GpxVisualizer
                    (MathF.Log(MathF.Tan(angleCorrect) + 1.0f / (MathF.Cos(angleCorrect))) / MathF.PI)) *
                   m_scalingFactorTiles * 0.5f;
 
-        return new Vector(x,y);
+        return new Vector(x, y);
     }
 
 
@@ -405,8 +398,9 @@ public class GpxVisualizer
     private (float latitude, float longitude) GetGpxCoords(Vector tileCoords)
     {
         float longitude = ((float)tileCoords.X) / m_scalingFactorTiles * 360.0f - 180.0f;
-        float latitude = MathF.Atan(MathF.Sinh(MathF.PI - ((float)tileCoords.Y) / m_scalingFactorTiles * 2.0f * MathF.PI)) * 180.0f /
-                         MathF.PI;
+        float latitude =
+            MathF.Atan(MathF.Sinh(MathF.PI - ((float)tileCoords.Y) / m_scalingFactorTiles * 2.0f * MathF.PI)) * 180.0f /
+            MathF.PI;
 
         return (latitude, longitude);
     }

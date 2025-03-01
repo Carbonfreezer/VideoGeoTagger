@@ -3,48 +3,52 @@ using System.Windows.Controls;
 
 namespace VideoGeoTagger;
 
+/// <summary>
+///     Administrates the splitting points that generate the segments.
+/// </summary>
 public class SplittingAdministrator
 {
-
     /// <summary>
-    /// Delegate to inform another instance, that the splitting points have been changed.
+    ///     Delegate to inform another instance, that the splitting points have been changed.
     /// </summary>
     /// <param name="splittingPoints">List with splitting points.</param>
     public delegate void SetNewSplittingPoints(List<TimeSpan> splittingPoints);
 
-
     /// <summary>
-    /// Gets invoked when the splitting points have been changed,
-    /// </summary>
-    public event SetNewSplittingPoints? OnSplittingPointsChanged;
-
-    /// <summary>
-    /// The button to create a splitting point.
+    ///     The button to create a splitting point.
     /// </summary>
     private readonly Button m_createButton;
 
 
     /// <summary>
-    /// The button to delete a splitting point.
+    ///     The button to delete a splitting point.
     /// </summary>
     private readonly Button m_deleteButton;
 
     /// <summary>
-    /// The list box with the splitting points.
+    ///     The list box with the splitting points.
     /// </summary>
     private readonly ListBox m_listBox;
 
     /// <summary>
-    /// The time span with the splitting points contained.
+    ///     The time span with the splitting points contained.
     /// </summary>
     private readonly List<TimeSpan> m_splittingPoints = new List<TimeSpan>();
 
 
     /// <summary>
-    /// The video administrator.
+    ///     The video administrator.
     /// </summary>
     private readonly VideoAdministrator m_videoAdmin;
 
+
+    /// <summary>
+    ///     Constructor takes all gui elements.
+    /// </summary>
+    /// <param name="listBox">List box with the splitting points.</param>
+    /// <param name="createButton">The button to create a splitting point.</param>
+    /// <param name="deleteButton">The button to delete a splitting point.</param>
+    /// <param name="videoAdmin">The video player to get / set position.</param>
     public SplittingAdministrator(ListBox listBox, Button createButton, Button deleteButton,
         VideoAdministrator videoAdmin)
     {
@@ -61,7 +65,13 @@ public class SplittingAdministrator
 
 
     /// <summary>
-    /// Gets called from the outside when new data is loaded.
+    ///     Gets invoked when the splitting points have been changed,
+    /// </summary>
+    public event SetNewSplittingPoints? OnSplittingPointsChanged;
+
+
+    /// <summary>
+    ///     Gets called from the outside when new data is loaded.
     /// </summary>
     public void ResetData()
     {
@@ -71,10 +81,8 @@ public class SplittingAdministrator
     }
 
     /// <summary>
-    /// The delete command has been clicked for a splitting point.
+    ///     The delete command has been clicked for a splitting point.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void DeleteClicked(object sender, RoutedEventArgs e)
     {
         m_deleteButton.IsEnabled = false;
@@ -84,10 +92,8 @@ public class SplittingAdministrator
 
 
     /// <summary>
-    /// The create command has been clicked for the splitting point.
+    ///     The create command has been clicked for the splitting point.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void CreateClicked(object sender, RoutedEventArgs e)
     {
         TimeSpan currentSplittingPoint = m_videoAdmin.VideoPosition;
@@ -97,7 +103,7 @@ public class SplittingAdministrator
 
 
     /// <summary>
-    /// The list with the splitting point needs updating.
+    ///     The list with the splitting point needs updating.
     /// </summary>
     private void UpdateList()
     {
@@ -110,10 +116,8 @@ public class SplittingAdministrator
 
 
     /// <summary>
-    /// An item on the splitting point list has been added.
+    ///     An item on the splitting point list has been added.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void ItemSelected(object sender, SelectionChangedEventArgs e)
     {
         int index = m_listBox.SelectedIndex;

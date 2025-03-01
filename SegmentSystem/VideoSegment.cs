@@ -11,7 +11,7 @@ public class VideoSegment
     /// <summary>
     ///     The time we want to stay away from an inner border.
     /// </summary>
-    private const float BlackoutTime = 2.0f;
+    private const float BlackoutTime = 2.5f;
 
 
     /// <summary>
@@ -39,6 +39,11 @@ public class VideoSegment
     /// </summary>
     public bool m_isLast;
 
+    /// <summary>
+    /// The blackout time we want to have around cuts. 
+    /// </summary>
+    private readonly TimeSpan m_blackoutTimeSegment;
+
 
     /// <summary>
     ///     Creates a video segment from the end and the start point.
@@ -49,6 +54,7 @@ public class VideoSegment
     {
         m_startPoint = startPoint;
         m_endPoint = endPoint;
+        m_blackoutTimeSegment = TimeSpan.FromSeconds(BlackoutTime);
     }
 
     /// <summary>
@@ -58,9 +64,9 @@ public class VideoSegment
 
 
     /// <summary>
-    ///     Gets the time midpoint of the video segment.
+    /// Contains the synchronization point of the segment in video time.
     /// </summary>
-    public TimeSpan MidPoint => (m_startPoint + m_endPoint) * 0.5;
+    public TimeSpan SyncVideoTime { get; private set; }
 
 
     /// <summary>
@@ -73,6 +79,7 @@ public class VideoSegment
         Debug.Assert((videoTime >= m_startPoint) && (videoTime <= m_endPoint), "Not responsible for that video time.");
         m_filmToGpxAdder = gpxTime - videoTime;
         IsSynchronized = true;
+        SyncVideoTime = videoTime;
     }
 
 
@@ -90,11 +97,11 @@ public class VideoSegment
     ///     Simply checks if we are not too close to an inner border.
     /// </summary>
     /// <param name="videoTime"></param>
-    /// <returns>Indicates that we are not too close to a border.</returns>
+    /// <returns>Indicates that we are not too close to a border and if we administrate the time.</returns>
     public bool CanGetSave(TimeSpan videoTime)
     {
-        bool leftOk = m_isFirst || (videoTime >= m_startPoint + TimeSpan.FromSeconds(BlackoutTime));
-        bool rightOk = m_isLast || (videoTime <= m_endPoint - TimeSpan.FromSeconds(BlackoutTime));
+        bool leftOk = (m_isFirst && (videoTime >= m_startPoint)) || (videoTime >= m_startPoint + m_blackoutTimeSegment);
+        bool rightOk = (m_isLast && (videoTime <= m_endPoint)) || (videoTime <= m_endPoint - m_blackoutTimeSegment);
         return leftOk && rightOk;
     }
 

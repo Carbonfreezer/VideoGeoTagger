@@ -1,9 +1,8 @@
-﻿using Microsoft.Win32;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
+using Microsoft.Win32;
 using VideoGeoTagger.GpxData;
 using VideoGeoTagger.TimeSpanSystem;
 
@@ -14,11 +13,21 @@ namespace VideoGeoTagger.SegmentSystem;
 /// </summary>
 public class SegmentAdministrator
 {
+    /// <summary>
+    ///     The name space we use for the xml encoding.
+    /// </summary>
+    public const string NameSpace = @"http://www.topografix.com/GPX/1/1";
+
 
     /// <summary>
-    /// The name space we use for the xml encoding.
+    ///     Needed to generate the final gpx file.
     /// </summary>
-    public const string  NameSpace = @"http://www.topografix.com/GPX/1/1";
+    private readonly GpxRepresentation m_gpxAdministration;
+
+    /// <summary>
+    ///     The gpx visualization system.
+    /// </summary>
+    private readonly GpxVisualizer m_gpxVisualizer;
 
 
     /// <summary>
@@ -26,11 +35,27 @@ public class SegmentAdministrator
     /// </summary>
     private readonly List<VideoSegment> m_listOfSegments = new List<VideoSegment>();
 
+    /// <summary>
+    ///     The button for the save routine.
+    /// </summary>
+    private readonly Button m_saveButton;
+
 
     /// <summary>
     ///     The gui element for the segments.
     /// </summary>
     private readonly ListBox m_segmentListBox;
+
+
+    /// <summary>
+    ///     Checkbox if we want synchronization.
+    /// </summary>
+    private readonly CheckBox m_synchronizeBox;
+
+    /// <summary>
+    ///     The video administration system.
+    /// </summary>
+    private readonly VideoAdministrator m_videoAdmin;
 
     /// <summary>
     ///     Is used to suppress the callback, if we set our slider itself.
@@ -41,33 +66,6 @@ public class SegmentAdministrator
     ///     The total video time we have once it is known.
     /// </summary>
     private TimeSpan m_totalVideoTime;
-
-    /// <summary>
-    /// The video administration system.
-    /// </summary>
-    private readonly VideoAdministrator m_videoAdmin;
-
-    /// <summary>
-    /// The gpx visualization system.
-    /// </summary>
-    private readonly GpxVisualizer m_gpxVisualizer;
-
-
-    /// <summary>
-    /// Checkbox if we want synchronization.
-    /// </summary>
-    private readonly CheckBox m_synchronizeBox;
-
-    /// <summary>
-    /// The button for the save routine.
-    /// </summary>
-    private readonly Button m_saveButton;
-
-
-    /// <summary>
-    /// Needed to generate the final gpx file.
-    /// </summary>
-    private readonly GpxRepresentation m_gpxAdministration;
 
     /// <summary>
     ///     We administrate all segments.
@@ -99,11 +97,11 @@ public class SegmentAdministrator
 
 
     /// <summary>
-    /// Callback to save the processed GPX file.
+    ///     Callback to save the processed GPX file.
     /// </summary>
     private void SaveButtonOnClick(object sender, RoutedEventArgs e)
     {
-        var dialog = new SaveFileDialog()
+        var dialog = new SaveFileDialog
         {
             FileName = "Processed",
             DefaultExt = ".gpx", // Default file extension
@@ -138,8 +136,8 @@ public class SegmentAdministrator
         VideoSegment? relevantSegment;
         while (scanning < m_totalVideoTime)
         {
-            relevantSegment = m_listOfSegments.Find(seg => seg.IsResponsibleVideoTime(scanning));
-            if ((relevantSegment != null) && (relevantSegment.CanGetSave(scanning)))
+            relevantSegment = m_listOfSegments.Find(seg => seg.CanGetSave(scanning));
+            if (relevantSegment != null)
             {
                 gpxTime = relevantSegment.GetGpxTime(scanning);
                 trkPoint = m_gpxAdministration.GetTrackingPointElement(document, gpxTime, scanning);
@@ -158,25 +156,28 @@ public class SegmentAdministrator
         trkSeg.AppendChild(trkPoint);
 
         using (XmlWriter writer = XmlWriter.Create(dialog.FileName))
+        {
             document.WriteTo(writer);
+        }
     }
 
-    
 
     /// <summary>
-    /// Gets called, when the user has picked onto the map to get the closest gpx time.
+    ///     Gets called, when the user has picked onto the map to get the closest gpx time.
     /// </summary>
     /// <param name="gpxTime">The time in gpx system selected.</param>
     private void MapTimeSelected(TimeSpan gpxTime)
     {
         if (m_synchronizeBox.IsChecked == true)
         {
-            VideoSegment relevantSegment = m_listOfSegments[m_segmentListBox.SelectedIndex];
+            int selectedPosition = m_segmentListBox.SelectedIndex;
+            VideoSegment relevantSegment = m_listOfSegments[selectedPosition];
             relevantSegment.SetSynchronization(m_videoAdmin.VideoPosition, gpxTime);
             m_segmentListBox.Items[m_segmentListBox.SelectedIndex] =
                 $"Segment {m_segmentListBox.SelectedIndex + 1:D2} - Synced";
             UpdateMarker();
             m_synchronizeBox.IsChecked = false;
+            m_segmentListBox.SelectedIndex = selectedPosition;
 
             if (m_listOfSegments.All(seg => seg.IsSynchronized))
                 m_saveButton.IsEnabled = true;
@@ -190,9 +191,8 @@ public class SegmentAdministrator
     }
 
 
-
     /// <summary>
-    /// Sets or removes the marker at the relevant position.
+    ///     Sets or removes the marker at the relevant position.
     /// </summary>
     private void UpdateMarker()
     {
@@ -210,7 +210,7 @@ public class SegmentAdministrator
     }
 
     /// <summary>
-    /// Gets called when we have new splitting points.
+    ///     Gets called when we have new splitting points.
     /// </summary>
     /// <param name="splittingPoints">List of splitting points.</param>
     private void SplittingListChanged(List<TimeSpan> splittingPoints)
@@ -231,7 +231,7 @@ public class SegmentAdministrator
 
 
     /// <summary>
-    /// Sets the index, when the video position has reached the desired state.
+    ///     Sets the index, when the video position has reached the desired state.
     /// </summary>
     /// <param name="videoPosition">Position of the video.</param>
     private void VideoAdminOnOnVideoPositionChanged(TimeSpan videoPosition)
@@ -268,9 +268,10 @@ public class SegmentAdministrator
 
         UpdateMarker();
         m_saveButton.IsEnabled = false;
+        m_segmentListBox.SelectedIndex = 0;
     }
 
-  
+
     /// <summary>
     ///     When a segment got selected we find it.
     /// </summary>
@@ -284,6 +285,17 @@ public class SegmentAdministrator
             return;
 
         if (m_listOfSegments[index].IsSynchronized)
-            m_videoAdmin.VideoPosition = m_listOfSegments[index].MidPoint;
+            m_videoAdmin.VideoPosition = m_listOfSegments[index].SyncVideoTime;
+    }
+
+
+    /// <summary>
+    ///     Flushes the segment list gets called when a new gpx is loaded.
+    /// </summary>
+    public void Flush()
+    {
+        m_listOfSegments.Clear();
+        m_listOfSegments.Add(new VideoSegment(TimeSpan.Zero, m_totalVideoTime));
+        PopulateGui();
     }
 }

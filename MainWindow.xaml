@@ -12,9 +12,10 @@
                 <Canvas>
                     <Button Canvas.Left="83" Canvas.Top="69"  FontSize="18" Click="OnLoadVideo" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" >Load Video</Button>
                     <Button Canvas.Left="83" Canvas.Top="131"  FontSize="18" Click="OnLoadGpx" HorizontalAlignment="Left" VerticalAlignment="Center" Width="218" Height="48">Load Gpx</Button>
-                    <Label FontSize="18" Canvas.Left="33" Canvas.Top="854" HorizontalAlignment="Center" VerticalAlignment="Top">Map Data provided by OpenStreetMap</Label>
-
                     <Button x:Name="SaveButton" FontSize="18" Canvas.Left="83" Canvas.Top="241"  Width="218" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Top" Height="48">Save modified GPX</Button>
+                    <Label FontSize="18" Canvas.Left="62" Canvas.Top="746" HorizontalAlignment="Left" VerticalAlignment="Top">Program written by Christoph Lürig</Label>
+                    <Label FontSize="18" Canvas.Left="91" Canvas.Top="775" HorizontalAlignment="Center" VerticalAlignment="Center">christoph.luerig@gmail.com</Label>
+                    <Label FontSize="18" Canvas.Left="48" Canvas.Top="855" HorizontalAlignment="Left" VerticalAlignment="Top">Map Data provided by OpenStreetMap</Label>
                 </Canvas>
             </TabItem>
             <TabItem Header="Splitting Points">
@@ -29,10 +30,19 @@
             <TabItem Header="Segment Synchronization">
                 <Canvas>
                     <ListBox x:Name="SegmentList" Width="400" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single" />
-                    <CheckBox x:Name="Synchronize" FontSize="18" Canvas.Left="10" Canvas.Top="839" Height="30" Width="138" HorizontalAlignment="Left" VerticalAlignment="Top">Synchronize</CheckBox>
+                    <CheckBox x:Name="Synchronize" FontSize="10" Canvas.Left="168" Canvas.Top="883" Height="19" Width="78" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                        <CheckBox.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="3" ScaleY="3"/>
+                                <SkewTransform/>
+                                <RotateTransform/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </CheckBox.RenderTransform> Synchronize
+                    </CheckBox>
                 </Canvas>
             </TabItem>
-            
+
         </TabControl>
         <GroupBox x:Name="VideoControl" Height="580" Header="Video Control" Width="1150"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="0">
             <Canvas>
