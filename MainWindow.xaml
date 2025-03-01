@@ -5,35 +5,35 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VideoGeoTagger"
         mc:Ignorable="d"
-        Title="Video Geo Tagger" Height="1200" Width="1600" ResizeMode="NoResize">
+        Title="Video Geo Tagger" Height="1020" Width="1300" ResizeMode="NoResize">
     <Canvas>
-        <TabControl x:Name="tabControl" Height="1150" Width="420" HorizontalAlignment="Left" VerticalAlignment="Center">
+        <TabControl x:Name="tabControl" Height="960" Width="310" HorizontalAlignment="Left" Canvas.Left="10" Canvas.Top="10" VerticalAlignment="Center">
             <TabItem Header="Loading/Saving">
                 <Canvas>
-                    <Button Canvas.Left="83" Canvas.Top="50"  FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" Click="OnLoadProject" >Load Project</Button>
-                    <Button x:Name="SaveProjectButton" IsEnabled="False" Canvas.Left="83" Canvas.Top="112"  FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" Click="OnSaveProject"  >Save Project</Button>
+                    <Button Canvas.Left="39" Canvas.Top="44"  FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" Click="OnLoadProject" >Load Project</Button>
+                    <Button x:Name="SaveProjectButton" IsEnabled="False" Canvas.Left="39" Canvas.Top="106"  FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" Click="OnSaveProject"  >Save Project</Button>
 
-                    <Button Canvas.Left="83" Canvas.Top="341"  FontSize="18" Click="OnLoadVideo" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" >Load Video</Button>
-                    <Button Canvas.Left="83" Canvas.Top="403"  FontSize="18" Click="OnLoadGpx" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48">Load Gpx</Button>
-                    <Button x:Name="SaveButton" FontSize="18" Canvas.Left="83" Canvas.Top="513"  Width="218" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Top" Height="48">Save modified GPX</Button>
-                    <Label FontSize="18" Canvas.Left="62" Canvas.Top="908" HorizontalAlignment="Center" VerticalAlignment="Top">Program written by Christoph Lürig</Label>
-                    <Label FontSize="18" Canvas.Left="91" Canvas.Top="937" HorizontalAlignment="Center" VerticalAlignment="Top">christoph.luerig@gmail.com</Label>
-                    <Label FontSize="18" Canvas.Left="48" Canvas.Top="1017" HorizontalAlignment="Center" VerticalAlignment="Top">Map Data provided by OpenStreetMap</Label>
+                    <Button Canvas.Left="39" Canvas.Top="335"  FontSize="18" Click="OnLoadVideo" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48" >Load Video</Button>
+                    <Button Canvas.Left="39" Canvas.Top="397"  FontSize="18" Click="OnLoadGpx" HorizontalAlignment="Center" VerticalAlignment="Top" Width="218" Height="48">Load Gpx</Button>
+                    <Button x:Name="SaveButton" FontSize="18" Canvas.Left="39" Canvas.Top="507"  Width="218" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Top" Height="48">Save modified GPX</Button>
+                    <Label FontSize="18" Canvas.Left="33" Canvas.Top="791" HorizontalAlignment="Left" VerticalAlignment="Top">Program by Christoph Lürig</Label>
+                    <Label FontSize="18" Canvas.Left="30" Canvas.Top="825" HorizontalAlignment="Left" VerticalAlignment="Top">christoph.luerig@gmail.com</Label>
+                    <Label FontSize="18" Canvas.Left="26" Canvas.Top="898" HorizontalAlignment="Left" VerticalAlignment="Top">Map Data by OpenStreetMap</Label>
                 </Canvas>
             </TabItem>
             <TabItem Header="Splitting">
                 <Canvas>
-                    <ListBox x:Name="SplittingList" Width="400" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single">
+                    <ListBox x:Name="SplittingList" Width="297" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single">
 
                     </ListBox>
-                    <Button x:Name="ButtonCreateSplitting" FontSize="18" Canvas.Left="121" Canvas.Top="854" HorizontalAlignment="Center" VerticalAlignment="Top">Create Splitting Point</Button>
-                    <Button x:Name="ButtonDeleteSplitting" FontSize="18" Canvas.Left="121" Canvas.Top="919" HorizontalAlignment="Center" VerticalAlignment="Top">Delete Splitting Point</Button>
+                    <Button x:Name="ButtonCreateSplitting" FontSize="18" Canvas.Left="74" Canvas.Top="826" HorizontalAlignment="Left" VerticalAlignment="Top">Create Splitting Point</Button>
+                    <Button x:Name="ButtonDeleteSplitting" FontSize="18" Canvas.Left="74" Canvas.Top="886" HorizontalAlignment="Left" VerticalAlignment="Top">Delete Splitting Point</Button>
                 </Canvas>
             </TabItem>
             <TabItem Header="Synchronization">
                 <Canvas>
-                    <ListBox x:Name="SegmentList" Width="400" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single" />
-                    <CheckBox x:Name="Synchronize" FontSize="10" Canvas.Left="168" Canvas.Top="883" Height="19" Width="78" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                    <ListBox x:Name="SegmentList" Width="297" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single" />
+                    <CheckBox x:Name="Synchronize" FontSize="10" Canvas.Left="118" Canvas.Top="861" Height="19" Width="78" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
                         <CheckBox.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform ScaleX="3" ScaleY="3"/>
@@ -45,19 +45,22 @@
                     </CheckBox>
                 </Canvas>
             </TabItem>
+            <TabItem Header="Info">
+
+            </TabItem>
 
         </TabControl>
-        <GroupBox x:Name="VideoControl" Height="580" Header="Video Control" Width="1150"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="0">
+        <GroupBox x:Name="VideoControl" Height="480" Header="Video Control" Width="950"  HorizontalAlignment="Right" Canvas.Top="10" VerticalAlignment="Top" Canvas.Right="10">
             <Canvas>
-                <Canvas x:Name="VideoImage" Height="530" Width="1140" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <Slider x:Name="VideoSlider" Height="20" Width="1140" Canvas.Left="0" Canvas.Bottom="0" Maximum="100" SmallChange="0.01"/>
+                <Canvas x:Name="VideoImage" Height="430" Width="925" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                <Slider x:Name="VideoSlider" Height="20" Width="940" Canvas.Left="0" Canvas.Bottom="0" Maximum="100" SmallChange="0.01"/>
             </Canvas>
         </GroupBox>
 
-        <GroupBox x:Name="GpxControl" Height="580" Header="Gpx Control" Width="1150"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="0" Canvas.Bottom="0">
+        <GroupBox x:Name="GpxControl" Height="480" Header="Gpx Control" Width="950"  HorizontalAlignment="Right" VerticalAlignment="Top" Canvas.Right="10" Canvas.Bottom="10">
             <Canvas>
-                <Image x:Name="GpxImage" Height="550" Width="1000" HorizontalAlignment="Left" VerticalAlignment="Top"  Stretch="None"/>
-                <Slider x:Name="GpxZoomSlider" Height="500" Width="20" Canvas.Left="1043" Canvas.Bottom="0" Maximum="300" Canvas.Top="29" Orientation="Vertical"/>
+                <Image x:Name="GpxImage" Height="448" Width="909" HorizontalAlignment="Left" VerticalAlignment="Top"  Stretch="None"/>
+                <Slider x:Name="GpxZoomSlider" Height="430" Width="20" Canvas.Right="0" Canvas.Bottom="10" Maximum="300"  Orientation="Vertical"/>
             </Canvas>
         </GroupBox>
 
