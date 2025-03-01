@@ -1,6 +1,9 @@
 # VideoGeoTagger
 Program to geo-tag a video with a Gpx file that has not been shot continuously.
 
+##Screenshot
+![Screenshot of Video Geo Tagger](Screenshot.png)
+
 
 ## Overview
 The program synchronizes a GPX file with a potentially cut movie for geotagging. First, you load a video and a GPX file. Then, you define splitting points where you have cut the video, and finally, you geotag every resulting segment.
