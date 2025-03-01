@@ -64,7 +64,7 @@ public class GpxCoordinates
         {
             double x = (m_longitude + 180.0) / 360.0 * ScalingFactorTiles;
 
-            double angleCorrect = m_latitude * MathF.PI / 180.0f;
+            double angleCorrect = m_latitude * Math.PI / 180.0;
             double y = (1.0 -
                         (Math.Log(Math.Tan(angleCorrect) + 1.0 / (Math.Cos(angleCorrect))) / Math.PI)) *
                        ScalingFactorTiles * 0.5;

@@ -121,39 +121,13 @@ public class GpxRepresentation
 
 
     /// <summary>
-    ///     Gets the angular distance on longitude. Takes care of the wrap around.
-    /// </summary>
-    /// <param name="angleA">First angle.</param>
-    /// <param name="angleB">Second angle.</param>
-    /// <returns>Angular distance.</returns>
-    private double GetLongitudeDistance(double angleA, double angleB)
-    {
-        double diff = angleA - angleB;
-
-        if (diff > 180.0)
-            diff = 360.0 - diff;
-
-        if (diff < -180.0)
-            diff = 380.0 + diff;
-
-        return diff;
-    }
-
-
-
-    // TODO: Has to change in further processing.
-
-    /// <summary>
     ///     Asks for a given latitude and longitude the closest point we have selected. Returns gpx time.
     /// </summary>
     /// <returns>Best time, when the position has been reached.</returns>
     public TimeSpan GetClosestTime(GpxCoordinates coordinates)
     {
-        
-
-        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
-            Math.Pow(coordinates.m_latitude - logEntry.m_coordinates.m_latitude, 2.0) +
-            Math.Pow(GetLongitudeDistance(coordinates.m_longitude, logEntry.m_coordinates.m_longitude), 2.0));
+        Vector tileCoordProbing = coordinates.TileCoordinates;
+        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry => (tileCoordProbing - logEntry.m_coordinates.TileCoordinates).LengthSquared);
 
         Debug.Assert(bestEntry != null, "No Entry found.");
         return bestEntry.m_timeFromBeginning;
