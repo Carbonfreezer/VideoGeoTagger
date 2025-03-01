@@ -20,7 +20,7 @@ public class GpxVisualizer
     /// <summary>
     ///     The scaling level we use for the geo map tile system.
     /// </summary>
-    private const int ScalingLevel = 14; // 15;
+    public const int ScalingLevel = 14; 
 
     /// <summary>
     ///     The size of a single tile in pixel.
@@ -69,12 +69,6 @@ public class GpxVisualizer
     /// </summary>
     private readonly DrawingGroup m_markerDrawing;
 
-
-    /// <summary>
-    ///     The scaling factor that has on the scaling level for tiles.
-    /// </summary>
-    private readonly float m_scalingFactorTiles;
-
     /// <summary>
     ///     The drawing offset point corresponds to the upper left corner of the system. Used to interpret mouse clicks.
     /// </summary>
@@ -115,7 +109,6 @@ public class GpxVisualizer
     /// <param name="representation">The gpx representation to extract the information from.</param>
     public GpxVisualizer(Image controlImage, Slider gpxZoomSlider, GpxRepresentation representation)
     {
-        m_scalingFactorTiles = MathF.Pow(2.0f, ScalingLevel);
         m_gpxSet = false;
         m_gpxRepresentation = representation;
         m_baseGroup = new DrawingGroup();
@@ -170,7 +163,7 @@ public class GpxVisualizer
     public void SetMarker(TimeSpan gpxTime)
     {
         GpxCoordinates coord = m_gpxRepresentation.GetPositionForTimeStamp(gpxTime);
-        Vector tileCoords = GetInTileCoordinates(coord);
+        Vector tileCoords = coord.TileCoordinates;
         tileCoords *= TileSize;
 
         m_markerDrawing.Transform = new TranslateTransform(tileCoords.X, tileCoords.Y);
@@ -236,7 +229,7 @@ public class GpxVisualizer
         mousePosition += (Vector)m_drawingOffsetPoint;
         Vector scaledMousePosition = mousePosition / TileSize;
 
-        GpxCoordinates coords = GetGpxCoords(scaledMousePosition);
+        GpxCoordinates coords = new GpxCoordinates(scaledMousePosition);
         OnMapTimeSelected?.Invoke(m_gpxRepresentation.GetClosestTime(coords));
     }
 
@@ -300,8 +293,8 @@ public class GpxVisualizer
     {
         var boundary = m_gpxRepresentation.BoundingRectangle;
 
-        Vector minPosition = GetInTileCoordinates(new GpxCoordinates(){m_latitude = boundary.maxLatitude, m_longitude = boundary.minLongitude }  );
-        Vector maxPosition = GetInTileCoordinates(new GpxCoordinates() { m_latitude = boundary.minLatitude, m_longitude = boundary.maxLongitude });
+        Vector minPosition = (new GpxCoordinates(boundary.maxLatitude,  boundary.minLongitude )  ).TileCoordinates;
+        Vector maxPosition = (new GpxCoordinates(boundary.minLatitude, boundary.maxLongitude)).TileCoordinates;
 
 
         m_originTileSystem = (minPosition + maxPosition) * 0.5;
@@ -338,7 +331,7 @@ public class GpxVisualizer
         bool firstElement = true;
         foreach (GpxCoordinates point in m_gpxRepresentation.CoordinatePoints)
         {
-            Point drawingPoint = (Point)(GetInTileCoordinates(point) * TileSize);
+            Point drawingPoint = (Point)(point.TileCoordinates * TileSize);
             if (firstElement)
                 pathFigure.StartPoint = drawingPoint;
             else
@@ -365,45 +358,4 @@ public class GpxVisualizer
     {
         return new Uri($"{TileProvider}/{ScalingLevel}/{xTile}/{yTile}.png");
     }
-
-    #region Coordinate Conversion
-
-    /// <summary>
-    ///     Gets the tile coordinates for a given latitude and longitude. The integer part is the tile and the fraction part
-    ///     the part of the tile.
-    ///     x coordinate is from left to right and y coordinate from top to bottom.
-    /// </summary>
-    /// <returns>Tile coordinates in Mercator system.</returns>
-    private Vector GetInTileCoordinates(GpxCoordinates position)
-    {
-        double x = (position.m_longitude + 180.0) / 360.0 * m_scalingFactorTiles;
-
-        double angleCorrect = position.m_latitude * MathF.PI / 180.0f;
-        double y = (1.0 -
-                    (Math.Log(Math.Tan(angleCorrect) + 1.0 / (Math.Cos(angleCorrect))) / Math.PI)) *
-                   m_scalingFactorTiles * 0.5;
-
-        return new Vector(x, y);
-    }
-
-
-    /// <summary>
-    ///     Gets the latitude and longitude for a given tile coordinate.
-    /// </summary>
-    /// <param name="tileCoords">The coordinates in tiles.</param>
-    /// <returns>latitude longitude pair.</returns>
-    /// <seealso cref="GetInTileCoordinates" />
-    private GpxCoordinates GetGpxCoords(Vector tileCoords)
-    {
-        GpxCoordinates result = new GpxCoordinates
-        {
-            m_longitude = (tileCoords.X) / m_scalingFactorTiles * 360.0 - 180.0,
-            m_latitude = Math.Atan(Math.Sinh(Math.PI - ((float)tileCoords.Y) / m_scalingFactorTiles * 2.0 * Math.PI)) * 180.0 /
-                         Math.PI
-        };
-
-        return result;
-    }
-
-    #endregion
 }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
+using System.Windows;
 using System.Xml;
 
 namespace VideoGeoTagger.GpxData;
@@ -84,13 +85,7 @@ public class GpxRepresentation
 
             GpxLogEntry newLog = new GpxLogEntry
             {
-                m_coordinates = new GpxCoordinates()
-                {
-                    m_longitude = longitude,
-                    m_latitude = latitude,
-                    m_height = height
-                },
-
+                m_coordinates = new GpxCoordinates(latitude, longitude, height),
                 m_originalTimeStamp = timeStamp
             };
 
@@ -154,6 +149,8 @@ public class GpxRepresentation
     /// <returns>Best time, when the position has been reached.</returns>
     public TimeSpan GetClosestTime(GpxCoordinates coordinates)
     {
+        
+
         GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
             Math.Pow(coordinates.m_latitude - logEntry.m_coordinates.m_latitude, 2.0) +
             Math.Pow(GetLongitudeDistance(coordinates.m_longitude, logEntry.m_coordinates.m_longitude), 2.0));

@@ -53,7 +53,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void OnLoadVideo(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
+        OpenFileDialog dialog = new OpenFileDialog
         {
             DefaultExt = ".mp4", // Default file extension
             Filter = "Movie (.mp4)|*.mp4" // Filter files by extension
@@ -75,7 +75,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void OnLoadGpx(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
+        OpenFileDialog dialog = new OpenFileDialog
         {
             DefaultExt = ".gpx", // Default file extension
             Filter = "GPS Data (.gpx)|*.gpx" // Filter files by extension

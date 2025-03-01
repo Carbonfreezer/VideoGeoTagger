@@ -14,7 +14,7 @@ public class GpxLogEntry
     /// <summary>
     /// The position we are in.
     /// </summary>
-    public  GpxCoordinates m_coordinates = new GpxCoordinates();
+    public  GpxCoordinates m_coordinates = new GpxCoordinates(0.0, 0.0);
 
     /// <summary>
     ///     The time stamp, that was included in the log.
