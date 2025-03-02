@@ -9,14 +9,9 @@ namespace VideoGeoTagger.TimeSpanSystem;
 public class VideoSegment
 {
     /// <summary>
-    ///     The time we want to stay away from an inner border.
-    /// </summary>
-    private const float BlackoutTime = 2.5f;
-
-    /// <summary>
     ///     The blackout time we want to have around cuts.
     /// </summary>
-    private readonly TimeSpan m_blackoutTimeSegment;
+    private static readonly TimeSpan BlackoutTimeSegment = TimeSpan.FromSeconds(2.5);
 
 
     /// <summary>
@@ -54,7 +49,6 @@ public class VideoSegment
     {
         m_startPoint = startPoint;
         m_endPoint = endPoint;
-        m_blackoutTimeSegment = TimeSpan.FromSeconds(BlackoutTime);
     }
 
     /// <summary>
@@ -121,8 +115,8 @@ public class VideoSegment
     /// <returns>Indicates that we are not too close to a border and if we administrate the time.</returns>
     public bool CanGetSave(TimeSpan videoTime)
     {
-        bool leftOk = (m_isFirst && (videoTime >= m_startPoint)) || (videoTime >= m_startPoint + m_blackoutTimeSegment);
-        bool rightOk = (m_isLast && (videoTime <= m_endPoint)) || (videoTime <= m_endPoint - m_blackoutTimeSegment);
+        bool leftOk = (m_isFirst && (videoTime >= m_startPoint)) || (videoTime >= m_startPoint + BlackoutTimeSegment);
+        bool rightOk = (m_isLast && (videoTime <= m_endPoint)) || (videoTime <= m_endPoint - BlackoutTimeSegment);
         return leftOk && rightOk;
     }
 
