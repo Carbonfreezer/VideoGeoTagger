@@ -97,19 +97,19 @@ public class SegmentAdministrator
 
 
     /// <summary>
-    /// Gets the save information from the segment administrator.
+    ///     Gets the save information from the segment administrator.
     /// </summary>
     public List<VideoSegmentInfo> SafeInfo => m_listOfSegments.Select(seg => seg.SaveInfo).ToList();
 
 
     /// <summary>
-    /// Sets the list with the segment information from a project load.
+    ///     Sets the list with the segment information from a project load.
     /// </summary>
     /// <param name="infoList">The list with the segment informations.</param>
     public void SetLoadingInfo(List<VideoSegmentInfo> infoList)
     {
         Debug.Assert(infoList.Count == m_listOfSegments.Count, "The set list should be as long as the segment list.");
-        for(int i = 0; i < m_listOfSegments.Count; ++i)
+        for (int i = 0; i < m_listOfSegments.Count; ++i)
             m_listOfSegments[i].SetLoadingInfo(infoList[i]);
 
         PopulateGui();
@@ -240,6 +240,7 @@ public class SegmentAdministrator
             m_listOfSegments.Add(new VideoSegment(firstPoint, split));
             firstPoint = split;
         }
+
         m_listOfSegments.Add(new VideoSegment(firstPoint, m_totalVideoTime));
         PopulateGui();
     }

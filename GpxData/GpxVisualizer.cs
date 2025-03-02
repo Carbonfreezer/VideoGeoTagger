@@ -20,7 +20,7 @@ public class GpxVisualizer
     /// <summary>
     ///     The scaling level we use for the geo map tile system.
     /// </summary>
-    public const int ScalingLevel = 14; 
+    public const int ScalingLevel = 14;
 
     /// <summary>
     ///     The size of a single tile in pixel.
@@ -291,12 +291,7 @@ public class GpxVisualizer
     /// <returns>Drawing group with visual representation.</returns>
     private DrawingGroup BuildMapWithPath()
     {
-        var boundary = m_gpxRepresentation.BoundingRectangle;
-
-        Vector minPosition = (new GpxCoordinates(boundary.maxLatitude,  boundary.minLongitude )  ).TileCoordinates;
-        Vector maxPosition = (new GpxCoordinates(boundary.minLatitude, boundary.maxLongitude)).TileCoordinates;
-
-
+        (Vector minPosition, Vector maxPosition) = m_gpxRepresentation.BoundingRectangle;
         m_originTileSystem = (minPosition + maxPosition) * 0.5;
 
         // Now we create a drawing group for all the tiles.

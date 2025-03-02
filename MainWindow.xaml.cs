@@ -40,17 +40,17 @@ public partial class MainWindow : Window
 
 
     /// <summary>
-    /// The plain gpx filename used for saving.
+    ///     The plain gpx filename used for saving.
     /// </summary>
     private string m_plainGpxFilename = "";
 
     /// <summary>
-    /// The plain video filename used for saving.
+    ///     The plain video filename used for saving.
     /// </summary>
     private string m_plainVideoFilename = "";
 
     /// <summary>
-    /// The save struct we have from loading the data.
+    ///     The save struct we have from loading the data.
     /// </summary>
     private ProjectSaveStruct? m_saveStruct;
 
@@ -87,7 +87,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Gets called when we want to load a video.
+    ///     Gets called when we want to load a video.
     /// </summary>
     /// <param name="fileName">The filename we want to load.</param>
     private void LoadVideo(string fileName)
@@ -119,9 +119,8 @@ public partial class MainWindow : Window
     }
 
 
-
     /// <summary>
-    /// Loads the gpx data from the indicated file.
+    ///     Loads the gpx data from the indicated file.
     /// </summary>
     /// <param name="filename">The name of the file to load gpx from.</param>
     private void LoadGpx(string filename)
@@ -136,7 +135,7 @@ public partial class MainWindow : Window
 
 
     /// <summary>
-    /// Gets called when the load button got pressed.
+    ///     Gets called when the load button got pressed.
     /// </summary>
     private void OnLoadProject(object sender, RoutedEventArgs e)
     {
@@ -156,7 +155,7 @@ public partial class MainWindow : Window
         string fileName = dialog.FileName;
         XmlSerializer serial = new XmlSerializer(typeof(ProjectSaveStruct));
         using TextReader reader = new StreamReader(fileName);
-        m_saveStruct = (ProjectSaveStruct?) serial.Deserialize(reader);
+        m_saveStruct = (ProjectSaveStruct?)serial.Deserialize(reader);
         reader.Close();
 
         if (m_saveStruct == null)
@@ -166,17 +165,15 @@ public partial class MainWindow : Window
         // First we deal with loading the files.
         string? baseName = Path.GetDirectoryName(fileName);
         Debug.Assert(baseName != null, "Should be a directory.");
-        LoadVideo( Path.Combine(baseName, m_saveStruct.m_videoFilename));
+        LoadVideo(Path.Combine(baseName, m_saveStruct.m_videoFilename));
         LoadGpx(Path.Combine(baseName, m_saveStruct.m_gpxFilename));
 
         // For the rest we have to wait till the video got finished.
         m_videoAdmin.OnVideoReadyForTiming += LoadRestOfData;
-       
-       
     }
 
     /// <summary>
-    /// Gets invoked after the video is finished.
+    ///     Gets invoked after the video is finished.
     /// </summary>
     private void LoadRestOfData(TimeSpan _)
     {
@@ -190,7 +187,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Gets called when the save button got pressed.
+    ///     Gets called when the save button got pressed.
     /// </summary>
     private void OnSaveProject(object sender, RoutedEventArgs e)
     {
@@ -221,6 +218,5 @@ public partial class MainWindow : Window
         using TextWriter writer = new StreamWriter(dialog.FileName);
         serial.Serialize(writer, saveStruct);
         writer.Close();
-
     }
 }

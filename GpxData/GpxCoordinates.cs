@@ -22,15 +22,25 @@ public class GpxCoordinates
     private readonly double m_height;
 
     /// <summary>
+    ///     The latitude of the position.
+    /// </summary>
+    private readonly double m_latitude;
+
+    /// <summary>
+    ///     The longitude of the position.
+    /// </summary>
+    private readonly double m_longitude;
+
+    /// <summary>
     ///     Constructs the gpx coordinates from the tile coordinates.
     /// </summary>
     /// <param name="tileCoordinates">tile coordinates to generate from.</param>
     public GpxCoordinates(Vector tileCoordinates)
     {
-        Longitude = (tileCoordinates.X) / ScalingFactorTiles * 360.0 - 180.0;
-        Latitude = Math.Atan(Math.Sinh(Math.PI - ((float)tileCoordinates.Y) / ScalingFactorTiles * 2.0 * Math.PI)) *
-                   180.0 /
-                   Math.PI;
+        m_longitude = (tileCoordinates.X) / ScalingFactorTiles * 360.0 - 180.0;
+        m_latitude = Math.Atan(Math.Sinh(Math.PI - ((float)tileCoordinates.Y) / ScalingFactorTiles * 2.0 * Math.PI)) *
+                     180.0 /
+                     Math.PI;
         m_height = -5000.0;
         TileCoordinates = tileCoordinates;
     }
@@ -43,30 +53,19 @@ public class GpxCoordinates
     /// <param name="height">optional height</param>
     public GpxCoordinates(double latitude, double longitude, double height = -5000.0)
     {
-        Longitude = longitude;
-        Latitude = latitude;
+        m_longitude = longitude;
+        m_latitude = latitude;
         m_height = height;
 
-        double x = (Longitude + 180.0) / 360.0 * ScalingFactorTiles;
+        double x = (m_longitude + 180.0) / 360.0 * ScalingFactorTiles;
 
-        double angleCorrect = Latitude * Math.PI / 180.0;
+        double angleCorrect = m_latitude * Math.PI / 180.0;
         double y = (1.0 -
                     (Math.Log(Math.Tan(angleCorrect) + 1.0 / (Math.Cos(angleCorrect))) / Math.PI)) *
                    ScalingFactorTiles * 0.5;
 
         TileCoordinates = new Vector(x, y);
     }
-
-    /// <summary>
-    ///     The latitude of the position.
-    /// </summary>
-    public double Latitude { get; }
-
-    /// <summary>
-    ///     The longitude of the position.
-    /// </summary>
-    public double Longitude { get; }
-
 
     /// <summary>
     ///     Gets the tile coordinates of the position.
@@ -83,8 +82,8 @@ public class GpxCoordinates
     public XmlElement GetTrackingElement(XmlDocument doc, DateTime givenTime)
     {
         XmlElement returnElement = doc.CreateElement("trkpt", SegmentAdministrator.NameSpace);
-        returnElement.SetAttribute("lat", Latitude.ToString(CultureInfo.InvariantCulture));
-        returnElement.SetAttribute("lon", Longitude.ToString(CultureInfo.InvariantCulture));
+        returnElement.SetAttribute("lat", m_latitude.ToString(CultureInfo.InvariantCulture));
+        returnElement.SetAttribute("lon", m_longitude.ToString(CultureInfo.InvariantCulture));
 
         XmlElement timeNode = doc.CreateElement("time", SegmentAdministrator.NameSpace);
         timeNode.InnerText = givenTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
@@ -109,8 +108,8 @@ public class GpxCoordinates
     /// <returns>Interpolated coordinate.</returns>
     public GpxCoordinates GetInterpolatedValue(GpxCoordinates other, double alpha)
     {
-        return new GpxCoordinates(Latitude + alpha * (other.Latitude - Latitude),
-            Longitude + alpha * (other.Longitude - Longitude),
+        return new GpxCoordinates(m_latitude + alpha * (other.m_latitude - m_latitude),
+            m_longitude + alpha * (other.m_longitude - m_longitude),
             m_height + alpha * (other.m_height - m_height));
     }
 }

@@ -22,18 +22,24 @@ public class GpxRepresentation
 
 
     /// <summary>
-    ///     Asks for the bounding rectangle of the course.
+    ///     Asks for the bounding rectangle of the course in tile coordinates.
     /// </summary>
-    public (double minLatitude, double maxLatitude, double minLongitude, double maxLongitude) BoundingRectangle
+    public (Vector minPoint, Vector maxPoint) BoundingRectangle
     {
         get
         {
-            double minLatitude = m_originalNodes.Min(node => node.m_coordinates.Latitude);
-            double maxLatitude = m_originalNodes.Max(node => node.m_coordinates.Latitude);
-            double minLongitude = m_originalNodes.Min(node => node.m_coordinates.Longitude);
-            double maxLongitude = m_originalNodes.Max(node => node.m_coordinates.Longitude);
+            Vector minPoint = new Vector(
+                m_originalNodes.Min(node => node.m_coordinates.TileCoordinates.X),
+                m_originalNodes.Min(node => node.m_coordinates.TileCoordinates.Y)
+            );
 
-            return (minLatitude, maxLatitude, minLongitude, maxLongitude);
+            Vector maxPoint = new Vector(
+                m_originalNodes.Max(node => node.m_coordinates.TileCoordinates.X),
+                m_originalNodes.Max(node => node.m_coordinates.TileCoordinates.Y)
+            );
+
+
+            return (minPoint, maxPoint);
         }
     }
 
@@ -42,7 +48,7 @@ public class GpxRepresentation
     ///     Gets an enumerable for latitude an longitude points for painting.
     /// </summary>
     public IEnumerable<GpxCoordinates> CoordinatePoints => m_originalNodes.Select(entry => entry.m_coordinates);
-   
+
     /// <summary>
     ///     Loads the data from the file and builds the internal list.
     /// </summary>
@@ -113,16 +119,12 @@ public class GpxRepresentation
         // We get the first entry where we are in front of.
         int foundIndex = m_originalNodes.FindIndex(log => log.m_timeFromBeginning > gpxTime);
         if (foundIndex == -1)
-        {
             // In this case we take the last element.
-            return m_originalNodes[^1].m_coordinates.GetTrackingElement(doc, m_virtualStartTime + videoTime );
-        }
-       
+            return m_originalNodes[^1].m_coordinates.GetTrackingElement(doc, m_virtualStartTime + videoTime);
+
         if (foundIndex == 0)
-        {
             // In this case we are already slightly ahead.
             return m_originalNodes[0].m_coordinates.GetTrackingElement(doc, m_virtualStartTime + videoTime);
-        }
 
         // In this case we have to interpolate.
         TimeSpan baseTime = m_originalNodes[foundIndex - 1].m_timeFromBeginning;
@@ -143,7 +145,8 @@ public class GpxRepresentation
     public TimeSpan GetClosestTime(GpxCoordinates coordinates)
     {
         Vector tileCoordProbing = coordinates.TileCoordinates;
-        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry => (tileCoordProbing - logEntry.m_coordinates.TileCoordinates).LengthSquared);
+        GpxLogEntry? bestEntry = m_originalNodes.MinBy(logEntry =>
+            (tileCoordProbing - logEntry.m_coordinates.TileCoordinates).LengthSquared);
 
         Debug.Assert(bestEntry != null, "No Entry found.");
         return bestEntry.m_timeFromBeginning;

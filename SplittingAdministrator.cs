@@ -30,22 +30,16 @@ public class SplittingAdministrator
     /// </summary>
     private readonly ListBox m_listBox;
 
-    /// <summary>
-    ///     The time span with the splitting points contained.
-    /// </summary>
-    private List<TimeSpan> m_splittingPoints = new List<TimeSpan>();
-
 
     /// <summary>
     ///     The video administrator.
     /// </summary>
     private readonly VideoAdministrator m_videoAdmin;
 
-
     /// <summary>
-    /// Gets the splitting points for project save purposes.
+    ///     The time span with the splitting points contained.
     /// </summary>
-    public List<TimeSpan> SplittingPoints => m_splittingPoints;
+    private List<TimeSpan> m_splittingPoints = new List<TimeSpan>();
 
 
     /// <summary>
@@ -71,13 +65,19 @@ public class SplittingAdministrator
 
 
     /// <summary>
+    ///     Gets the splitting points for project save purposes.
+    /// </summary>
+    public List<TimeSpan> SplittingPoints => m_splittingPoints;
+
+
+    /// <summary>
     ///     Gets invoked when the splitting points have been changed,
     /// </summary>
     public event SetNewSplittingPoints? OnSplittingPointsChanged;
 
 
     /// <summary>
-    /// Sets the splitting points from the outside, used for saving procedures.
+    ///     Sets the splitting points from the outside, used for saving procedures.
     /// </summary>
     /// <param name="savedSplittingPoints">The saved splitting points.</param>
     public void SetSplittingPoints(List<TimeSpan> savedSplittingPoints)

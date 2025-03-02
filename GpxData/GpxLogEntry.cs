@@ -1,20 +1,14 @@
-﻿using System.Globalization;
-using System.Windows;
-using System.Xml;
-using VideoGeoTagger.SegmentSystem;
-
-namespace VideoGeoTagger.GpxData;
+﻿namespace VideoGeoTagger.GpxData;
 
 /// <summary>
 ///     Some data that is contained in a GPS log entry.
 /// </summary>
 public class GpxLogEntry
 {
-
     /// <summary>
-    /// The position we are in.
+    ///     The position we are in.
     /// </summary>
-    public  GpxCoordinates m_coordinates = new GpxCoordinates(0.0, 0.0);
+    public GpxCoordinates m_coordinates = new GpxCoordinates(0.0, 0.0);
 
     /// <summary>
     ///     The time stamp, that was included in the log.
@@ -25,5 +19,4 @@ public class GpxLogEntry
     ///     The time that has passed since the beginning of the log.
     /// </summary>
     public TimeSpan m_timeFromBeginning;
-
 }
