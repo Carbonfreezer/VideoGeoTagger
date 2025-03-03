@@ -23,10 +23,10 @@
             </TabItem>
             <TabItem Header="Splitting">
                 <Canvas>
-                    <ListBox x:Name="SplittingList" Width="297" Height="800" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single">
-
-                    </ListBox>
-                    <Button x:Name="ButtonCreateSplitting" FontSize="18" Canvas.Left="74" Canvas.Top="826" HorizontalAlignment="Left" VerticalAlignment="Top">Create Splitting Point</Button>
+                    <ListBox x:Name="SplittingList" Width="297" Height="700" FontSize="18" HorizontalAlignment="Left" Canvas.Left="7" VerticalAlignment="Center" SelectionMode="Single"/>
+                    <Label FontSize="18" Canvas.Left ="7" Canvas.Top="740">Video Time:</Label>
+                    <TextBox x:Name="TimeBox" FontSize="18" Canvas.Left="7" Canvas.Top="770" Width="297" IsReadOnly="True"></TextBox>
+                    <Button x:Name="ButtonCreateSplitting" FontSize="18" Canvas.Left="74" Canvas.Top="846" HorizontalAlignment="Left" VerticalAlignment="Top">Create Splitting Point</Button>
                     <Button x:Name="ButtonDeleteSplitting" FontSize="18" Canvas.Left="74" Canvas.Top="886" HorizontalAlignment="Left" VerticalAlignment="Top">Delete Splitting Point</Button>
                 </Canvas>
             </TabItem>

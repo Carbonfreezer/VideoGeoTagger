@@ -53,17 +53,24 @@ public class VideoAdministrator
     private TimeSpan m_videoLength;
 
     /// <summary>
+    /// Display element for current video time.
+    /// </summary>
+    private readonly TextBox m_timeBox;
+
+    /// <summary>
     ///     Generates the video administrator from the slider and the display canvas.
     /// </summary>
     /// <param name="displayCanvas">The canvas where we shoe the video in.</param>
     /// <param name="usedSlider">The slider we use.</param>
-    public VideoAdministrator(Canvas displayCanvas, Slider usedSlider)
+    /// <param name="timeBox">The box where to display the current video time.</param>
+    public VideoAdministrator(Canvas displayCanvas, Slider usedSlider, TextBox timeBox)
     {
         m_displayCanvas = displayCanvas;
         m_slider = usedSlider;
         m_slider.PreviewMouseUp += SliderLeft;
         m_slider.PreviewMouseDown += SliderStarted;
         m_slider.ValueChanged += SliderOnValueChanged;
+        m_timeBox = timeBox;
     }
 
 
@@ -195,6 +202,7 @@ public class VideoAdministrator
 
         m_suspendSliderReaction = true;
         m_slider.Value = 100.0f * (m_mediaPlayer.Position / m_videoLength);
+        m_timeBox.Text = m_mediaPlayer.Position.ToString();
         m_suspendSliderReaction = false;
         OnVideoPositionChanged?.Invoke(m_mediaPlayer.Position);
     }

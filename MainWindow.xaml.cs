@@ -57,7 +57,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        m_videoAdmin = new VideoAdministrator(VideoImage, VideoSlider);
+        m_videoAdmin = new VideoAdministrator(VideoImage, VideoSlider, TimeBox);
         m_splitting =
             new SplittingAdministrator(SplittingList, ButtonCreateSplitting, ButtonDeleteSplitting, m_videoAdmin);
         m_gpxRepresentation = new GpxRepresentation();
