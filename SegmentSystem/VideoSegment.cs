@@ -73,6 +73,17 @@ public class VideoSegment
 
 
     /// <summary>
+    ///     Asks for the starting point of the video.
+    /// </summary>
+    public TimeSpan StartingPoint => m_startPoint;
+
+    /// <summary>
+    ///     Asks for the ending point of the video.
+    /// </summary>
+    public TimeSpan EndingPoint => m_endPoint;
+
+
+    /// <summary>
     ///     Sets the information, that is used for loading.
     /// </summary>
     /// <param name="savedInfo">The saved information we want to restore.</param>

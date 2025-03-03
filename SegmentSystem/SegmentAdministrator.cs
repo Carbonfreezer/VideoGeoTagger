@@ -252,6 +252,9 @@ public class SegmentAdministrator
     /// <param name="videoPosition">Position of the video.</param>
     private void VideoAdminOnOnVideoPositionChanged(TimeSpan videoPosition)
     {
+        if (m_suppressCallback)
+            return;
+
         m_suppressCallback = true;
         int index = m_listOfSegments.FindIndex(seg => seg.IsResponsibleVideoTime(videoPosition));
         if (index != -1)
@@ -286,7 +289,9 @@ public class SegmentAdministrator
 
         UpdateMarker();
         m_saveButton.IsEnabled = m_listOfSegments.All(seg => seg.IsSynchronized);
+        m_suppressCallback = true;
         m_segmentListBox.SelectedIndex = 0;
+        m_suppressCallback = false;
     }
 
 
@@ -302,8 +307,14 @@ public class SegmentAdministrator
         if (index == -1)
             return;
 
+
+        m_suppressCallback = true;
         if (m_listOfSegments[index].IsSynchronized)
             m_videoAdmin.VideoPosition = m_listOfSegments[index].SyncVideoTime;
+        else
+            m_videoAdmin.VideoPosition = index == 0 ? m_listOfSegments[0].StartingPoint : m_listOfSegments[index - 1].EndingPoint - TimeSpan.FromSeconds(0.2);
+        UpdateMarker();
+        m_suppressCallback = false;
     }
 
 

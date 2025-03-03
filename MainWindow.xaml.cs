@@ -94,6 +94,7 @@ public partial class MainWindow : Window
     {
         m_videoAdmin.LoadVideo(fileName);
         m_splitting.ResetData();
+        m_segmentAdministrator.Flush();
         m_plainVideoFilename = Path.GetFileName(fileName);
         if (m_plainGpxFilename != "")
             SaveProjectButton.IsEnabled = true;
@@ -128,6 +129,7 @@ public partial class MainWindow : Window
         m_gpxRepresentation.LoadFromFile(filename);
         m_gpxVisualizer.UpdateRepresentation();
         m_segmentAdministrator.Flush();
+        m_splitting.ResetData();
         m_plainGpxFilename = Path.GetFileName(filename);
         if (m_plainVideoFilename != "")
             SaveProjectButton.IsEnabled = true;
